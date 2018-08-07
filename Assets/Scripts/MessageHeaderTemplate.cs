@@ -21,16 +21,17 @@ public class MessageHeaderTemplate : MonoBehaviour
         screen.ShowMessage(id);
     }
 
-    public void SetData(Message m, Sprite senderImage, InboxScreen screen, int threadLength)
+    public void SetData(Message m, string partnerName, Sprite senderImage, InboxScreen screen, int threadLength)
     {
         m_SenderImage.sprite = senderImage;
-        m_SenderText.text = m.sender;
-        m_TopicText.text = m.topic;
+        m_TopicText.text = "Subject: " + m.topic;
+        m_SenderText.text = "From: " + partnerName;
+
         if ( threadLength > 1 )
         {
             m_SenderText.text += " (" + threadLength + " messages in thread)";
         }
-        m_TimeStampText.text = m.timestamp.ToString();
+        m_TimeStampText.text = "Time: " + m.timestamp.ToString();
         m_OpenButton.onClick.AddListener(delegate { OpenMessage(screen, m.id); } );
 
         m_SenderText.fontStyle = m.read ? FontStyle.Normal : FontStyle.Bold;

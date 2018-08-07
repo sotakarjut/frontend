@@ -24,8 +24,9 @@ public class InboxScreen : UIScreen
 
     private List<MessageTemplate> m_MessageInstances;
     private int m_LastActiveMessage;
+    private InboxMode m_LastShownBox;
 
-    private enum InboxMode
+    public enum InboxMode
     {
         Received,
         Sent
@@ -56,6 +57,7 @@ public class InboxScreen : UIScreen
     {
         m_MessagePanel.gameObject.SetActive(false);
         m_MessageListPanel.gameObject.SetActive(true);
+        m_LastShownBox = InboxMode.Received;
 
         UpdateInboxContents(InboxMode.Received);
     }
@@ -64,6 +66,7 @@ public class InboxScreen : UIScreen
     {
         m_MessagePanel.gameObject.SetActive(false);
         m_MessageListPanel.gameObject.SetActive(true);
+        m_LastShownBox = InboxMode.Sent;
 
         UpdateInboxContents(InboxMode.Sent);
     }
@@ -135,6 +138,17 @@ public class InboxScreen : UIScreen
         m_MessagePanel.gameObject.SetActive(true);
     }
 
+    public void OnBack()
+    {
+        if ( m_LastShownBox == InboxMode.Received )
+        {
+            ShowInbox();
+        } else if ( m_LastShownBox == InboxMode.Sent )
+        {
+            ShowSent();
+        }
+    }
+
     public void Reply(int id)
     {
         m_UIManager.ShowScreen(m_NewMessageScreen);
@@ -190,6 +204,22 @@ public class InboxScreen : UIScreen
         return result;
     }
 
+    private string GetLastThreadPartner(List<Message> messages, List<int> threads, int message)
+    {
+        while ( threads[message] >= 0 )
+        {
+            message = threads[message];
+        }
+
+        if ( messages[message].sender != m_UserManager.CurrentUserName )
+        {
+            return messages[message].sender;
+        } else
+        {
+            return messages[message].receiver;
+        }
+    }
+
     private void UpdateInboxContents(InboxMode mode)
     {
         List<Message> messages = m_MessageManager.GetMessages(m_UserManager.CurrentUserName);
@@ -224,7 +254,8 @@ public class InboxScreen : UIScreen
             // update instance data
             MessageHeaderTemplate instance = m_MessageHeaderInstances[index];
             int message = visibleThreadRoots[i];
-            instance.SetData(messages[message], m_UserManager.GetUserImage(messages[message].sender), this, CountThreadLength(threads, message));
+            string partnerName = GetLastThreadPartner(messages, threads, message);
+            instance.SetData(messages[message], partnerName, m_UserManager.GetUserImage(messages[message].sender), this, CountThreadLength(threads, message));
             instance.gameObject.SetActive(true);
 
             ++index;

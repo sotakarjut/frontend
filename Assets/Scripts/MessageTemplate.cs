@@ -7,6 +7,7 @@ public class MessageTemplate : MonoBehaviour
 {
     //public Image m_SenderImage;
     public Text m_SenderText;
+    public Text m_ReceiverText;
     public Text m_TopicText;
     public Text m_TimeStampText;
     public Text m_MessageText;
@@ -18,8 +19,9 @@ public class MessageTemplate : MonoBehaviour
 
     public void SetData(Message m)
     {
-        m_SenderText.text = m.sender;
-        m_TopicText.text = m.topic;
+        m_SenderText.text = "From: " + m.sender;
+        m_ReceiverText.text = "To: " + m.receiver;
+        m_TopicText.text = "Subject: " + m.topic;
         m_TimeStampText.text = m.timestamp.ToString();
         m_MessageText.text = m.message;
     }

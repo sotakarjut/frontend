@@ -11,6 +11,7 @@ public class NewMessageScreen : UIScreen
     public InputField m_TopicField;
     public Dropdown m_ReceiverDropdown;
     public InputField m_Message;
+    public Button m_SendButton;
 
     private int m_ReplyID;
 
@@ -22,14 +23,27 @@ public class NewMessageScreen : UIScreen
     {
         base.Show();
 
-        List<string> users = m_UserManager.GetUsers();
-        m_ReceiverDropdown.ClearOptions();
-        m_ReceiverDropdown.AddOptions(users);
+        //List<string> users = m_UserManager.GetUsers();
+        //m_ReceiverDropdown.ClearOptions();
+        //m_ReceiverDropdown.AddOptions(users);
 
         m_TopicField.text = "";
         m_ReceiverDropdown.value = 0;
         m_Message.text = "";
         m_ReplyID = -1;
+
+        m_ReceiverDropdown.interactable = false;
+        m_SendButton.interactable = false;
+
+        m_UserManager.GetUsers(UsersReceived);
+    }
+
+    public void UsersReceived(List<string> users)
+    {
+        m_ReceiverDropdown.ClearOptions();
+        m_ReceiverDropdown.AddOptions(users);
+        m_ReceiverDropdown.interactable = true;
+        m_SendButton.interactable = true;
     }
 
     public void SetReplyData(int id)
