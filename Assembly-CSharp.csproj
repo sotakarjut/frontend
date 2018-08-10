@@ -73,6 +73,7 @@
     <Compile Include="Assets\Scripts\UIScreen.cs" />
     <Compile Include="Assets\Scripts\UserManager.cs" />
     <None Include="Assets\JsonDotNet\link.xml" />
+    <None Include="Assets\Art\sf_new_republic\Readme.txt" />
     <Reference Include="UnityEditor.StandardEvents">
       <HintPath>E:/omat/timo/Sotakarjut/Sotakarjut-frontend/Sotakarjut frontend/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
     </Reference>

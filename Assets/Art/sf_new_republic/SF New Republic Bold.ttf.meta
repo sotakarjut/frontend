@@ -1,0 +1,25 @@
+fileFormatVersion: 2
+guid: a557dc328ee79d746a703eef2e42124f
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: SF New Republic
+  fontNames:
+  - SF New Republic
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 10b9a6909c6cd804ab907c9ab97f7b57, type: 3}
+  - {fileID: 12800000, guid: 4250da577542efe46ae3277c92a29d78, type: 3}
+  - {fileID: 12800000, guid: 1fe18ce7b0fc704419eafe0a45fdd295, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
