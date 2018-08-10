@@ -79,7 +79,7 @@ public class NewMessageScreen : UIScreen
         m.sender = m_UserManager.CurrentUserName;
         m.timestamp = System.DateTime.Now;
         m.topic = topic;
-        m.receiver = m_UserManager.GetUserByIndex(receiver);
+        m.receiver = m_UserManager.GetUserNameByIndex(receiver);
         m.message = message;
         m_MessageManager.SendMessage(m);
 
