@@ -19,6 +19,12 @@ public class InboxScreen : UIScreen
     public GameObject m_MessagePanel;
     public Button m_ReplyButton;
 
+    public Text m_ReceivedButtonText;
+    public Text m_SentButtonText;
+
+    public Color m_SelectedBoxTextColor;
+    public Color m_UnselectedBoxTextColor;
+
     private List<MessageHeaderTemplate> m_MessageHeaderInstances;
     private int m_LastActiveMessageHeader;
 
@@ -58,6 +64,8 @@ public class InboxScreen : UIScreen
         m_MessagePanel.gameObject.SetActive(false);
         m_MessageListPanel.gameObject.SetActive(true);
         m_LastShownBox = InboxMode.Received;
+        m_ReceivedButtonText.color = m_SelectedBoxTextColor;
+        m_SentButtonText.color = m_UnselectedBoxTextColor;
 
         UpdateInboxContents(InboxMode.Received);
     }
@@ -67,6 +75,8 @@ public class InboxScreen : UIScreen
         m_MessagePanel.gameObject.SetActive(false);
         m_MessageListPanel.gameObject.SetActive(true);
         m_LastShownBox = InboxMode.Sent;
+        m_ReceivedButtonText.color = m_UnselectedBoxTextColor;
+        m_SentButtonText.color = m_SelectedBoxTextColor;
 
         UpdateInboxContents(InboxMode.Sent);
     }
