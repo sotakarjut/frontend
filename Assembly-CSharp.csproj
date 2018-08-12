@@ -67,6 +67,7 @@
     <Compile Include="Assets\Scripts\MessageManager.cs" />
     <Compile Include="Assets\Scripts\MessageTemplate.cs" />
     <Compile Include="Assets\Scripts\NewMessageScreen.cs" />
+    <Compile Include="Assets\Scripts\ThreadMessageTemplate.cs" />
     <Compile Include="Assets\Scripts\TopMenu.cs" />
     <Compile Include="Assets\Scripts\UIManager.cs" />
     <Compile Include="Assets\Scripts\UIMenu.cs" />

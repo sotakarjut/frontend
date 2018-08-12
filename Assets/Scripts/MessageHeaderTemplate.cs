@@ -11,6 +11,13 @@ public class MessageHeaderTemplate : MonoBehaviour
     public Text m_TimeStampText;
     public Button m_OpenButton;
 
+    public Text m_ThreadLengthText;
+    //public ThreadMessageTemplate m_Template;
+    //public Button m_OpenThreadButton;
+
+    //private bool m_ThreadShown;
+    
+
 	void Start ()
     {
 		
@@ -21,6 +28,11 @@ public class MessageHeaderTemplate : MonoBehaviour
         screen.ShowMessage(id);
     }
 
+    private void ToggleThread()
+    {
+
+    }
+
     public void SetData(Message m, string partnerName, Sprite senderImage, InboxScreen screen, int threadLength)
     {
         m_SenderImage.sprite = senderImage;
@@ -29,8 +41,12 @@ public class MessageHeaderTemplate : MonoBehaviour
 
         if ( threadLength > 1 )
         {
-            m_SenderText.text += " (" + threadLength + " messages in thread)";
+            m_ThreadLengthText.text = threadLength + " viestiä";
+        } else
+        {
+            m_ThreadLengthText.text = "";
         }
+
         m_TimeStampText.text = "Time: " + m.timestamp.ToString();
         m_OpenButton.onClick.AddListener(delegate { OpenMessage(screen, m.id); } );
 
