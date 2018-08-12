@@ -6,7 +6,7 @@ public class UIManager : MonoBehaviour
 {
     public UserManager m_UserManager;
 
-    public UIScreen m_InitialScreen;
+    public LoginScreen m_InitialScreen;
     public UIMenu m_InitialMenu;
 
     private UIScreen[] m_Screens;
@@ -68,13 +68,9 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void Login(string user, string pin, UIScreen nextScreen)
+    public void ShowNoConnection()
     {
-        if ( m_UserManager.Login(user, pin) )
-        {
-            ShowMenu(m_InitialMenu);
-            ShowScreen(nextScreen);
-        }
+        m_InitialScreen.ShowNoConnection();
     }
 
     public void Logout()

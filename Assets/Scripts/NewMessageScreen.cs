@@ -35,10 +35,15 @@ public class NewMessageScreen : UIScreen
         m_ReceiverDropdown.interactable = false;
         m_SendButton.interactable = false;
 
-        m_UserManager.GetUsers(UsersReceived);
+        m_UserManager.GetUsers(UsersReceived, NoConnection);
     }
 
-    public void UsersReceived(List<string> users)
+    private void NoConnection()
+    {
+        m_UserManager.NoConnection();
+    }
+
+    private void UsersReceived(List<string> users)
     {
         m_ReceiverDropdown.ClearOptions();
         m_ReceiverDropdown.AddOptions(users);

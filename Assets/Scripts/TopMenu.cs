@@ -23,9 +23,14 @@ public class TopMenu : UIMenu
         base.Show();
     }
 
+    private void NoConnection()
+    {
+        m_UserManager.NoConnection();
+    }
+
     public override void Show()
     {
-        m_UserManager.GetCurrentUserInfo(UserInfoReceived);
+        m_UserManager.GetCurrentUserInfo(UserInfoReceived, NoConnection);
     }
 
 

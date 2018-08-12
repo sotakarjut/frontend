@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
+using System;
 
 public class UserManager : MonoBehaviour
 {
@@ -16,8 +17,13 @@ public class UserManager : MonoBehaviour
     public string ExampleBalance;
     public List<string> ExampleUsers;
 
+    public UIManager m_Manager;
+
     public delegate void UsersReceivedCallback(List<string> users);
     public delegate void UserProfileReceivedCallback(UserProfile userinfo);
+    public delegate void LoginSuccessfulCallback();
+    public delegate void LoginFailedCallback();
+    public delegate void NoConnectionCallback();
 
     private delegate void UsersReadyCallback();
     private List<UserInfo> m_CachedUsers;
@@ -29,6 +35,12 @@ public class UserManager : MonoBehaviour
         public string _id;
         public string username;
         public UserProfile profile;
+    }
+
+    public void NoConnection()
+    {
+        m_Manager.Logout();
+        m_Manager.ShowNoConnection();
     }
 
     [System.Serializable]
@@ -51,7 +63,7 @@ public class UserManager : MonoBehaviour
         return ExampleImage;
     }
 
-    private IEnumerator GetUsersCoroutine(UsersReadyCallback callback)
+    private IEnumerator GetUsersCoroutine(UsersReadyCallback callback, NoConnectionCallback noconnectionCallback)
     {
         UnityWebRequest request = UnityWebRequest.Get("http://localhost:3000/users");
         request.chunkedTransfer = false;
@@ -66,10 +78,12 @@ public class UserManager : MonoBehaviour
         if ( request.isNetworkError)
         {
             Debug.Log("Network error: Cannot get users: " + request.error + ", Code = " + request.responseCode);
+            noconnectionCallback();
         }
         else if (request.isHttpError)
         {
             Debug.Log("Http error: Cannot get users: " + request.error + ", Code = " + request.responseCode);
+            noconnectionCallback();
         }
         else
         {
@@ -92,7 +106,7 @@ public class UserManager : MonoBehaviour
         }
     }
 
-    public void GetUsers(UsersReceivedCallback callback)
+    public void GetUsers(UsersReceivedCallback callback, NoConnectionCallback failCallback)
     {
         if (m_CachedUsernames != null)
         {
@@ -100,7 +114,7 @@ public class UserManager : MonoBehaviour
         }
         else
         {
-            StartCoroutine(GetUsersCoroutine( () => { callback(m_CachedUsernames); }));
+            StartCoroutine(GetUsersCoroutine( () => { callback(m_CachedUsernames); }, failCallback ));
         }
     }
 
@@ -128,14 +142,14 @@ public class UserManager : MonoBehaviour
         return default(UserProfile);
     }
 
-    public void GetCurrentUserInfo(UserProfileReceivedCallback callback)
+    public void GetCurrentUserInfo(UserProfileReceivedCallback callback, NoConnectionCallback failCallback)
     {
         if (m_CachedUsers != null)
         {
             callback(InternalGetCurrentUserProfile());
         } else
         {
-            StartCoroutine(GetUsersCoroutine( () => { callback(InternalGetCurrentUserProfile()); } ));
+            StartCoroutine(GetUsersCoroutine( () => { callback(InternalGetCurrentUserProfile()); }, failCallback ));
         }
     }
 
@@ -144,15 +158,24 @@ public class UserManager : MonoBehaviour
         return m_CachedUsers[index].username;
     }
 
-    public bool Login(string username, string pin)
+    public void Login(string username, string pin, LoginSuccessfulCallback successCallback, LoginFailedCallback loginFailCallback, NoConnectionCallback failCallback)
     {
-        // TODO: check login
-        CurrentUserName = username;
-        CurrentUserClass = ExampleClass;
-        CurrentUserImage = GetUserImage(username);
-        CurrentUserBalance = ExampleBalance;
+        StartCoroutine(GetUsersCoroutine(() =>
+        {
+            if (m_CachedUsernames != null)
+            {
+                CurrentUserName = username;
+                CurrentUserClass = ExampleClass;
+                CurrentUserImage = GetUserImage(username);
+                CurrentUserBalance = ExampleBalance;
 
-        return true;
+                successCallback();
+            }
+            else
+            {
+                loginFailCallback();
+            }
+        }, failCallback ));
     }
     
     public void Logout()
