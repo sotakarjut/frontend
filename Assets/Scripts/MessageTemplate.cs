@@ -19,9 +19,9 @@ public class MessageTemplate : MonoBehaviour
 
     public void SetData(Message m)
     {
-        m_SenderText.text = "From: " + m.sender;
-        m_ReceiverText.text = "To: " + m.receiver;
-        m_TopicText.text = "Subject: " + m.topic;
+        m_TopicText.text = "Aihe: " + m.topic;
+        m_SenderText.text = "Lähettäjä: " + m.sender;
+        m_ReceiverText.text = "Vastaanottaja: " + m.receiver;
         m_TimeStampText.text = m.timestamp.ToString();
         m_MessageText.text = m.message;
     }
