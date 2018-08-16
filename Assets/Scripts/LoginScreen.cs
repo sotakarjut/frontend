@@ -30,20 +30,30 @@ public class LoginScreen : UIScreen
 
     public void LoginSuccessful()
     {
+        m_InvalidLogin.gameObject.SetActive(false);
+        m_NoConnection.gameObject.SetActive(false);
+
         m_Manager.ShowMenu(m_TopMenu);
         m_Manager.ShowScreen(m_InitialScreen);
     }
 
     public void LoginFailed()
     {
+        m_NoConnection.gameObject.SetActive(false);
         m_InvalidLogin.gameObject.SetActive(true);
+
         m_ID.text = "";
         m_PIN.text = "";
     }
 
     public void NoConnection()
     {
+        m_InvalidLogin.gameObject.SetActive(false);
         m_NoConnection.gameObject.SetActive(true);
+
+        // TODO: these are for debugging without backend
+        m_Manager.ShowMenu(m_TopMenu);
+        m_Manager.ShowScreen(m_InitialScreen);
     }
 
     public void OnLogin()

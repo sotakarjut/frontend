@@ -25,7 +25,15 @@ public class TopMenu : UIMenu
 
     private void NoConnection()
     {
-        m_UserManager.NoConnection();
+        //m_UserManager.NoConnection();
+
+        // TODO: this is for testing without backend
+        m_NameText.text = "No connection name";
+        m_ClassText.text = "Backendless worker";
+        m_ProfileImage.sprite = m_UserManager.CurrentUserImage; // TODO
+        m_BalanceText.text = "BALANCE: " + 1234;
+
+        base.Show();
     }
 
     public override void Show()

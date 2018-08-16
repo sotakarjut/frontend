@@ -38,7 +38,7 @@ public class InboxScreen : UIScreen
         Sent
     }
 
-    void Start ()
+    void Awake()
     {
         m_MessageHeaderInstances = new List<MessageHeaderTemplate>();
         m_MessageInstances = new List<MessageTemplate>();

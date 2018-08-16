@@ -11,6 +11,7 @@ public class UserManager : MonoBehaviour
     public string CurrentUserClass { get; private set; }
     public Sprite CurrentUserImage { get; private set; }
     public string CurrentUserBalance { get; private set; }
+    public string CurrentUserRole { get; private set; }
 
     public string ExampleClass;
     public Sprite ExampleImage;
@@ -28,6 +29,8 @@ public class UserManager : MonoBehaviour
     private delegate void UsersReadyCallback();
     private List<UserInfo> m_CachedUsers;
     private List<string> m_CachedUsernames;
+
+    private string m_UserToken;
 
     [System.Serializable]
     public struct UserInfo
@@ -65,7 +68,7 @@ public class UserManager : MonoBehaviour
 
     private IEnumerator GetUsersCoroutine(UsersReadyCallback callback, NoConnectionCallback noconnectionCallback)
     {
-        UnityWebRequest request = UnityWebRequest.Get("http://localhost:3000/users");
+        UnityWebRequest request = UnityWebRequest.Get("http://localhost:3000/api/users");
         request.chunkedTransfer = false;
 
         yield return request.SendWebRequest();
@@ -120,13 +123,17 @@ public class UserManager : MonoBehaviour
 
     public int GetUserIndex(string user)
     {
-        for (int i = 0; i < m_CachedUsers.Count; ++i)
+        if (m_CachedUsers != null)
         {
-            if ( user.Equals(m_CachedUsers[i]))
+            for (int i = 0; i < m_CachedUsers.Count; ++i)
             {
-                return i;
+                if (user.Equals(m_CachedUsers[i]))
+                {
+                    return i;
+                }
             }
-        }
+        } 
+
         return -1;
     }
 
@@ -155,11 +162,77 @@ public class UserManager : MonoBehaviour
 
     public string GetUserNameByIndex(int index)
     {
-        return m_CachedUsers[index].username;
+        if (m_CachedUsers != null)
+        {
+            return m_CachedUsers[index].username;
+        }
+        else
+        {
+            return "NoConnectionUser";
+        }
+    }
+
+    private struct LoginData
+    {
+        public UserInfo user;
+        public string token;
+    }
+
+    private IEnumerator TryLoginCoroutine(string username, string password, LoginSuccessfulCallback success, LoginFailedCallback failure, NoConnectionCallback noconnection)
+    {
+        WWWForm form = new WWWForm();
+        form.AddField("username", username);
+        form.AddField("password", password);
+        UnityWebRequest request = UnityWebRequest.Post("http://localhost:3000/api/login", form);
+        //request.chunkedTransfer = false;
+
+        yield return request.SendWebRequest();
+
+        while (!request.isDone)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+
+        if (request.isNetworkError)
+        {
+            Debug.Log("Network error: Cannot login: " + request.error + ", Code = " + request.responseCode);
+            noconnection();
+        }
+        else if (request.isHttpError)
+        {
+            if (request.responseCode == 404)
+            {
+                Debug.Log("Http error: User not found: " + request.error + ", Code = " + request.responseCode);
+            } else if ( request.responseCode == 401)
+            {
+                Debug.Log("Http error: Wrong password: " + request.error + ", Code = " + request.responseCode);
+            }
+
+            failure();
+        }
+        else
+        {
+            LoginData logindata = JsonConvert.DeserializeObject<LoginData>(request.downloadHandler.text);
+            
+            Debug.Log(logindata.user.username + ": " + logindata.token);
+
+            CurrentUserName = logindata.user.username;
+            CurrentUserClass = logindata.user.profile.@class;
+            CurrentUserImage = GetUserImage(CurrentUserName);
+            CurrentUserBalance = logindata.user.profile.balance.ToString();
+            CurrentUserRole = logindata.user.profile.role;
+            m_UserToken = logindata.token;
+
+            success();
+        }
     }
 
     public void Login(string username, string pin, LoginSuccessfulCallback successCallback, LoginFailedCallback loginFailCallback, NoConnectionCallback failCallback)
     {
+        StartCoroutine(TryLoginCoroutine(username, pin, successCallback, loginFailCallback, failCallback));
+
+
+        /*
         StartCoroutine(GetUsersCoroutine(() =>
         {
             if (m_CachedUsernames != null)
@@ -176,6 +249,7 @@ public class UserManager : MonoBehaviour
                 loginFailCallback();
             }
         }, failCallback ));
+        */
     }
     
     public void Logout()

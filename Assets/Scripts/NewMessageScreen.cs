@@ -40,7 +40,16 @@ public class NewMessageScreen : UIScreen
 
     private void NoConnection()
     {
-        m_UserManager.NoConnection();
+        //m_UserManager.NoConnection();
+
+        // TODO: this is for testing without backend
+        m_ReceiverDropdown.ClearOptions();
+        List<string> users = new List<string>();
+        users.Add("NoConnectionUser");
+        users.Add("GetABackendUser");
+        m_ReceiverDropdown.AddOptions(users);
+        m_ReceiverDropdown.interactable = true;
+        m_SendButton.interactable = true;
     }
 
     private void UsersReceived(List<string> users)

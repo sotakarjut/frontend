@@ -22,6 +22,7 @@ public class UIManager : MonoBehaviour
         m_Screens = transform.GetComponentsInChildren<UIScreen>(true);
         foreach (var s in m_Screens)
         {
+            s.gameObject.SetActive(true); // To make sure awake/start are called in time
             s.Hide();
         }
 
