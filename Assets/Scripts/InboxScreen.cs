@@ -19,6 +19,8 @@ public class InboxScreen : UIScreen
     public GameObject m_MessagePanel;
     public Button m_ReplyButton;
 
+    public Image m_MessageSeparator;
+
     public Text m_ReceivedButtonText;
     public Text m_SentButtonText;
 
@@ -26,9 +28,11 @@ public class InboxScreen : UIScreen
     public Color m_UnselectedBoxTextColor;
 
     private List<MessageHeaderTemplate> m_MessageHeaderInstances;
+    private List<Image> m_MessageHeaderSeparators;
     private int m_LastActiveMessageHeader;
 
     private List<MessageTemplate> m_MessageInstances;
+    private List<Image> m_MessageSeparators;
     private int m_LastActiveMessage;
     private InboxMode m_LastShownBox;
 
@@ -41,7 +45,9 @@ public class InboxScreen : UIScreen
     void Awake()
     {
         m_MessageHeaderInstances = new List<MessageHeaderTemplate>();
+        m_MessageHeaderSeparators = new List<Image>();
         m_MessageInstances = new List<MessageTemplate>();
+        m_MessageSeparators = new List<Image>();
 
         if ( m_MessageHeaderTemplate )
         {
@@ -51,12 +57,17 @@ public class InboxScreen : UIScreen
         {
             m_MessageTemplate.gameObject.SetActive(false);
         }
+        if ( m_MessageSeparator )
+        {
+            m_MessageSeparator.gameObject.SetActive(false);
+        }
     }
 
     public override void Show()
     {
         base.Show();
         ShowInbox();
+        m_UserManager.TestAuthorization();
     }
 
     public void ShowInbox()
@@ -123,11 +134,21 @@ public class InboxScreen : UIScreen
         int i = 0;
         for (; i < threadMessages.Count; ++i)
         {
-
             if (m_MessageInstances.Count <= i )
             {
+                if (i > 0)
+                {
+                    m_MessageSeparators.Add(Instantiate(m_MessageSeparator));
+                    m_MessageSeparators[i - 1].transform.SetParent(m_MessageContentParent, false);
+                }
+
                 m_MessageInstances.Add( Instantiate<MessageTemplate>(m_MessageTemplate) );
                 m_MessageInstances[i].transform.SetParent(m_MessageContentParent, false);
+            }
+
+            if (i > 0)
+            {
+                m_MessageSeparators[i - 1].gameObject.SetActive(true);
             }
 
             m_MessageInstances[i].SetData(threadMessages[i]);
@@ -137,6 +158,11 @@ public class InboxScreen : UIScreen
         // disable the rest of the instances
         for (; i <= m_LastActiveMessage; ++i)
         {
+            if (i > 0)
+            {
+                m_MessageSeparators[i - 1].gameObject.SetActive(false);
+            }
+
             m_MessageInstances[i].gameObject.SetActive(false);
         }
 
@@ -257,8 +283,19 @@ public class InboxScreen : UIScreen
             // create a new instance if it doesn't exist already
             if (m_MessageHeaderInstances.Count <= index)
             {
+                if (index > 0)
+                {
+                    m_MessageHeaderSeparators.Add(Instantiate(m_MessageSeparator));
+                    m_MessageHeaderSeparators[index - 1].transform.SetParent(m_MessageListContentParent, false);
+                }
+
                 m_MessageHeaderInstances.Add(Instantiate<MessageHeaderTemplate>(m_MessageHeaderTemplate));
                 m_MessageHeaderInstances[index].transform.SetParent(m_MessageListContentParent, false);
+            }
+
+            if (index > 0)
+            {
+                m_MessageHeaderSeparators[index - 1].gameObject.SetActive(true);
             }
 
             // update instance data
@@ -274,6 +311,11 @@ public class InboxScreen : UIScreen
         // disable the rest of the instances
         for (; index <= m_LastActiveMessageHeader; ++index )
         {
+            if ( index > 0 && index < m_LastActiveMessageHeader )
+            {
+                m_MessageHeaderSeparators[index - 1].gameObject.SetActive(false);
+            }
+
             m_MessageHeaderInstances[index].gameObject.SetActive(false);
         }
 

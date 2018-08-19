@@ -227,6 +227,37 @@ public class UserManager : MonoBehaviour
         }
     }
 
+    private IEnumerator TestAuthorizationCoroutine()
+    {
+        UnityWebRequest request = UnityWebRequest.Get("http://localhost:3000/api/testauth");
+        request.SetRequestHeader("Authorization", "Bearer " + m_UserToken);
+        yield return request.SendWebRequest();
+
+        while (!request.isDone)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+
+        if (request.isNetworkError)
+        {
+            Debug.Log("Network error: " + request.error + ", Code = " + request.responseCode);
+        }
+        else if (request.isHttpError)
+        {
+            Debug.Log("HTTP error: " + request.error + ", Code = " + request.responseCode);
+        } else
+        {
+            Debug.Log("Authorization success!");
+            Debug.Log(request.downloadHandler.text);
+        }
+
+    }
+
+    public void TestAuthorization()
+    {
+        StartCoroutine(TestAuthorizationCoroutine());
+    }
+
     public void Login(string username, string pin, LoginSuccessfulCallback successCallback, LoginFailedCallback loginFailCallback, NoConnectionCallback failCallback)
     {
         StartCoroutine(TryLoginCoroutine(username, pin, successCallback, loginFailCallback, failCallback));
