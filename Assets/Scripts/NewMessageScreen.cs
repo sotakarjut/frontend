@@ -13,7 +13,7 @@ public class NewMessageScreen : UIScreen
     public InputField m_Message;
     public Button m_SendButton;
 
-    private int m_ReplyID;
+    private string m_ReplyID;
 
 	void Start ()
     {
@@ -30,7 +30,7 @@ public class NewMessageScreen : UIScreen
         m_TopicField.text = "";
         m_ReceiverDropdown.value = 0;
         m_Message.text = "";
-        m_ReplyID = -1;
+        m_ReplyID = null;
 
         m_ReceiverDropdown.interactable = false;
         m_SendButton.interactable = false;
@@ -60,23 +60,23 @@ public class NewMessageScreen : UIScreen
         m_SendButton.interactable = true;
     }
 
-    public void SetReplyData(int id)
+    public void SetReplyData(string id)
     { 
-        if (id >= 0)
+        if (id != null)
         {
-            Message m = m_MessageManager.GetMessage(id);
+            MessageInfo m = m_MessageManager.GetMessage(id);
 
-            if (!m.topic.StartsWith("Re:"))
+            if (!m.title.StartsWith("Re:"))
             {
-                m_TopicField.text = "Re: " + m.topic;
+                m_TopicField.text = "Re: " + m.title;
             } else
             {
-                m_TopicField.text = m.topic;
+                m_TopicField.text = m.title;
             }
 
-            m_ReceiverDropdown.value = m_UserManager.GetUserIndex(m.sender);
+            //m_ReceiverDropdown.value = m_UserManager.GetUserIndex(m.sender);
 
-            m_Message.text = Regex.Replace(m.message, "^", ">", RegexOptions.Multiline);
+            m_Message.text = Regex.Replace(m.body, "^", ">", RegexOptions.Multiline);
 
             m_ReplyID = id;
         }
@@ -88,13 +88,13 @@ public class NewMessageScreen : UIScreen
         int receiver = m_ReceiverDropdown.value;
         string message = m_Message.text;
 
-        Message m = new Message();
-        m.parent = m_ReplyID;
-        m.sender = m_UserManager.CurrentUserName;
-        m.timestamp = System.DateTime.Now;
-        m.topic = topic;
-        m.receiver = m_UserManager.GetUserNameByIndex(receiver);
-        m.message = message;
+        MessageInfo m = new MessageInfo();
+        m.replyTo = m_ReplyID;
+        //m.sender = m_UserManager.CurrentUserName;
+        //m.timestamp = System.DateTime.Now;
+        m.title = topic;
+        m.recipient = m_UserManager.GetUsernameByIndex(receiver);
+        m.body = message;
         m_MessageManager.SendMessage(m);
 
         Debug.Log("Sent message to user " + receiver + ". Topic = " + topic + "\nMessage = \n" + message);

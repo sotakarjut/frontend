@@ -23,7 +23,7 @@ public class MessageHeaderTemplate : MonoBehaviour
 		
 	}
 
-    private void OpenMessage(InboxScreen screen, int id)
+    private void OpenMessage(InboxScreen screen, string id)
     {
         screen.ShowMessage(id);
     }
@@ -33,11 +33,11 @@ public class MessageHeaderTemplate : MonoBehaviour
 
     }
 
-    public void SetData(Message m, string partnerName, Sprite senderImage, InboxScreen screen, int threadLength)
+    public void SetData(MessageInfo m, string partnerName, Sprite senderImage, InboxScreen screen, int threadLength)
     {
         m_SenderImage.sprite = senderImage;
-        m_TopicText.text = "Subject: " + m.topic;
-        m_SenderText.text = "From: " + partnerName;
+        m_TopicText.text = "Aihe: " + m.title;
+        m_SenderText.text = "Lähettäjä: " + partnerName;
 
         if ( threadLength > 1 )
         {
@@ -47,11 +47,13 @@ public class MessageHeaderTemplate : MonoBehaviour
             m_ThreadLengthText.text = "";
         }
 
-        m_TimeStampText.text = "Time: " + m.timestamp.ToString();
-        m_OpenButton.onClick.AddListener(delegate { OpenMessage(screen, m.id); } );
+        //m_TimeStampText.text = m.timestamp.ToString();
+        m_OpenButton.onClick.AddListener(delegate { OpenMessage(screen, m._id); } );
 
+        /*
         m_SenderText.fontStyle = m.read ? FontStyle.Normal : FontStyle.Bold;
         m_TopicText.fontStyle = m.read ? FontStyle.Normal : FontStyle.Bold;
         m_TimeStampText.fontStyle = m.read ? FontStyle.Normal : FontStyle.Bold;
+        */
     }
 }

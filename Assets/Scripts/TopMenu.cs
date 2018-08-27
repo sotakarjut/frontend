@@ -16,7 +16,7 @@ public class TopMenu : UIMenu
     private void UserInfoReceived(UserManager.UserProfile profile)
     {
         m_NameText.text = profile.name;
-        m_ClassText.text = profile.@class;
+        m_ClassText.text = profile.role + ", " + profile.group;
         m_ProfileImage.sprite = m_UserManager.CurrentUserImage; // TODO
         m_BalanceText.text = "BALANCE: " + profile.balance;
 
@@ -40,7 +40,4 @@ public class TopMenu : UIMenu
     {
         m_UserManager.GetCurrentUserInfo(UserInfoReceived, NoConnection);
     }
-
-
-
 }

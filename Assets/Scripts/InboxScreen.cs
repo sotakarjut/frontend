@@ -61,13 +61,16 @@ public class InboxScreen : UIScreen
         {
             m_MessageSeparator.gameObject.SetActive(false);
         }
+
+        m_LastActiveMessage = -1;
+        m_LastActiveMessageHeader = -1;
+
     }
 
     public override void Show()
     {
         base.Show();
         ShowInbox();
-        m_UserManager.TestAuthorization();
     }
 
     public void ShowInbox()
@@ -92,18 +95,34 @@ public class InboxScreen : UIScreen
         UpdateInboxContents(InboxMode.Sent);
     }
 
-    public void ShowMessage(int id)
+    public void ShowMessage(string id)
     {
         m_MessageListPanel.gameObject.SetActive(false);
 
-        List<Message> allMessages = m_MessageManager.GetMessages(m_UserManager.CurrentUserName);
-        List<Message> threadMessages = new List<Message>();
-        List<int> threads = m_MessageManager.GetThreads();
-        Message m = m_MessageManager.GetMessage(id);
+        m_MessageManager.GetMessages(false, () => { ShowMessageReceived(id); }, NoConnection, MessagesFailed);
+    }
+
+    private void NoConnection()
+    {
+
+    }
+
+    private void MessagesFailed()
+    {
+
+    }
+
+    private void ShowMessageReceived(string id)
+    { 
+        //List<MessageInfo> showM = new List<MessageInfo>();
+        MessageManager.ThreadStructure threads = m_MessageManager.GetThreads();
+
+        // find thread root
+        MessageInfo m = m_MessageManager.GetMessage(id);
         int loops = 0;
-        while ( m.parent >= 0 && loops < 10000)
+        while ( m.replyTo != null && loops < 10000)
         {
-            m_MessageManager.GetMessage(m.parent);
+            m = m_MessageManager.GetMessage(m.replyTo);
             ++loops;
         }
         if ( loops == 10000 )
@@ -111,14 +130,15 @@ public class InboxScreen : UIScreen
             Debug.LogError("Inifinite loop in a thread starting from message " + id);
         }
 
+        List<MessageInfo> threadMessages = new List<MessageInfo>();
+
         loops = 0;
         do
         {
             threadMessages.Add(m);
-            int currentIndex = m_MessageManager.GetMessageIndexByID(m.id);
-            if (threads[currentIndex] >= 0)
+            if (threads.m_Next.ContainsKey(m._id))
             {
-                m = allMessages[threads[currentIndex]];
+                m = m_MessageManager.GetMessage( threads.m_Next[m._id] );
             } else
             {
                 break;
@@ -130,7 +150,8 @@ public class InboxScreen : UIScreen
             Debug.LogError("Inifinite loop in a thread starting from message " + id);
         }
 
-        m_MessageManager.MarkAsRead(threadMessages[0].id);
+        //m_MessageManager.MarkAsRead(threadMessages[0].id);
+
         int i = 0;
         for (; i < threadMessages.Count; ++i)
         {
@@ -151,7 +172,8 @@ public class InboxScreen : UIScreen
                 m_MessageSeparators[i - 1].gameObject.SetActive(true);
             }
 
-            m_MessageInstances[i].SetData(threadMessages[i]);
+            m_MessageInstances[i].SetData(threadMessages[i].title, m_UserManager.GetUserRealName(threadMessages[i].sender._id),
+                m_UserManager.GetUserRealName(threadMessages[i].recipient), threadMessages[i].body);
             m_MessageInstances[i].gameObject.SetActive(true);
         }
 
@@ -169,7 +191,7 @@ public class InboxScreen : UIScreen
         m_LastActiveMessage = threadMessages.Count - 1;
 
         m_ReplyButton.onClick.RemoveAllListeners();
-        m_ReplyButton.onClick.AddListener(delegate { Reply(threadMessages[threadMessages.Count-1].id); });
+        m_ReplyButton.onClick.AddListener(delegate { Reply(threadMessages[threadMessages.Count-1]._id); });
 
         m_MessagePanel.gameObject.SetActive(true);
     }
@@ -185,97 +207,121 @@ public class InboxScreen : UIScreen
         }
     }
 
-    public void Reply(int id)
+    public void Reply(string id)
     {
         m_UIManager.ShowScreen(m_NewMessageScreen);
         m_NewMessageScreen.SetReplyData(id);
     }
 
-    private int CountThreadLength(List<int> threads, int start)
+    private int CountThreadLength(MessageManager.ThreadStructure threads, string root)
     {
         int result = 1;
         int loops = 0;
-        while ( threads[start] >= 0 && loops < 10000)
+        while ( threads.m_Next.ContainsKey(root) && loops < 10000)
         {
-            start = threads[start];
+            root = threads.m_Next[root];
             ++result;
             ++loops;
         }
         return result;
     }
 
-    private bool CheckThreadVisibility(int root, List<Message> messages, List<int> threads, InboxMode mode)
+    private bool CheckThreadVisibility(string root, MessageManager.ThreadStructure threads, InboxMode mode)
     {
         bool otherSenderFound = false;
+        
         do
         {
-            if ( mode == InboxMode.Sent && messages[root].sender == m_UserManager.CurrentUserName )
+            MessageInfo m = m_MessageManager.GetMessage(root);
+            if ( mode == InboxMode.Sent && m.sender.username == m_UserManager.CurrentUserName )
             {
                 return true;
             }
-            if ( mode == InboxMode.Received && messages[root].sender != m_UserManager.CurrentUserName )
+            if ( mode == InboxMode.Received && m.sender.username != m_UserManager.CurrentUserName )
             {
                 otherSenderFound = true;
             }
 
-            root = threads[root];
-        } while (root >= 0);
+            if (threads.m_Next.ContainsKey(root))
+            {
+                root = threads.m_Next[root];
+            } else
+            {
+                break;
+            }
+        } while (true);
 
         return otherSenderFound;
     }
 
-    private System.DateTime GetThreadTimestamp(List<Message> messages, List<int> threads, int root)
+    private System.DateTime GetThreadTimestamp(string root, MessageManager.ThreadStructure threads)
     {
-        System.DateTime result;
-        result = messages[root].timestamp;
-        int current = threads[root];
-        while (current >= 0)
+        //System.DateTime result;
+        return System.DateTime.Today;
+
+        /*
+        result = m_MessageManager.GetMessage(root).timestamp;
+        if (threads.m_Next.ContainsKey(root))
         {
-            if (messages[current].timestamp > result)
+            root = threads.m_Next[root];
+            do
             {
-                result = messages[current].timestamp;
+                Message m = m_MessageManager.GetMessage(root);
+                if (m.timestamp > result)
+                {
+                    result = m.timestamp;
+                }
+                if (threads.m_Next.ContainsKey(root))
+                {
+                    root = threads.m_Next[root];
+                }
+                else
+                {
+                    break;
+                }
             }
-            current = threads[current];
+            while (true);
         }
-        return result;
+        return result;*/
     }
 
-    private string GetLastThreadPartner(List<Message> messages, List<int> threads, int message)
+    private string GetLastThreadPartner(MessageManager.ThreadStructure threads, string message)
     {
-        while ( threads[message] >= 0 )
+        while ( threads.m_Next.ContainsKey(message) )
         {
-            message = threads[message];
+            message = threads.m_Next[message];
         }
 
-        if ( messages[message].sender != m_UserManager.CurrentUserName )
+        MessageInfo m = m_MessageManager.GetMessage(message);
+        if ( m.sender.username != m_UserManager.CurrentUserName )
         {
-            return messages[message].sender;
+            return m.sender._id;
         } else
         {
-            return messages[message].receiver;
+            return m.recipient;
         }
     }
 
     private void UpdateInboxContents(InboxMode mode)
     {
-        List<Message> messages = m_MessageManager.GetMessages(m_UserManager.CurrentUserName);
+        m_MessageManager.GetMessages(false, () => { InboxReceived(mode); }, NoConnection, MessagesFailed);
+    }
 
-        List<int> threads = m_MessageManager.GetThreads();
+    private void InboxReceived(InboxMode mode)
+    { 
+        MessageManager.ThreadStructure threads = m_MessageManager.GetThreads();
 
         // Find and sort the messages that started a thread and should be shown in this mailbox
-        List<int> visibleThreadRoots = new List<int>();
-        for (int i = 0; i < messages.Count; ++i)
+        List<string> visibleThreadRoots = new List<string>();
+        for (int i = 0; i < threads.m_Roots.Count; ++i)
         {
-            if (messages[i].parent < 0)
+            if (CheckThreadVisibility(threads.m_Roots[i], threads, mode))
             {
-                if (CheckThreadVisibility(i, messages, threads, mode))
-                {
-                    visibleThreadRoots.Add(i);
-                }
+                visibleThreadRoots.Add( threads.m_Roots[i]);
             }
         }
 
-        visibleThreadRoots.Sort((t1, t2) => { return GetThreadTimestamp(messages, threads, t2).CompareTo(GetThreadTimestamp(messages, threads, t1)); });
+        //visibleThreadRoots.Sort((t1, t2) => { return GetThreadTimestamp(messages, threads, t2).CompareTo(GetThreadTimestamp(messages, threads, t1)); });
 
         int index = 0;
         for (int i = 0; i < visibleThreadRoots.Count; ++i)
@@ -300,9 +346,10 @@ public class InboxScreen : UIScreen
 
             // update instance data
             MessageHeaderTemplate instance = m_MessageHeaderInstances[index];
-            int message = visibleThreadRoots[i];
-            string partnerName = GetLastThreadPartner(messages, threads, message);
-            instance.SetData(messages[message], partnerName, m_UserManager.GetUserImage(messages[message].sender), this, CountThreadLength(threads, message));
+            string message = visibleThreadRoots[i];
+            string partner = GetLastThreadPartner(threads, message);
+            MessageInfo m = m_MessageManager.GetMessage(message);
+            instance.SetData(m, m_UserManager.GetUserRealName(partner), m_UserManager.GetUserImage(partner), this, CountThreadLength(threads, message));
             instance.gameObject.SetActive(true);
 
             ++index;

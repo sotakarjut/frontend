@@ -17,12 +17,12 @@ public class MessageTemplate : MonoBehaviour
 		
 	}
 
-    public void SetData(Message m)
+    public void SetData(string title, string sender, string recipient, string body)
     {
-        m_TopicText.text = m.topic;
-        m_SenderText.text = "Lähettäjä: " + m.sender;
-        m_ReceiverText.text = "Vastaanottaja: " + m.receiver;
-        m_TimeStampText.text = m.timestamp.ToString();
-        m_MessageText.text = m.message;
+        m_TopicText.text = title;
+        m_SenderText.text = "Lähettäjä: " + sender;
+        m_ReceiverText.text = "Vastaanottaja: " + recipient;
+        //m_TimeStampText.text = m.timestamp.ToString();
+        m_MessageText.text = body;
     }
 }

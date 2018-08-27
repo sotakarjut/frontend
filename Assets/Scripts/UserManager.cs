@@ -7,6 +7,7 @@ using System;
 
 public class UserManager : MonoBehaviour
 {
+    public string CurrentUser {get; private set; }
     public string CurrentUserName { get; private set; }
     public string CurrentUserClass { get; private set; }
     public Sprite CurrentUserImage { get; private set; }
@@ -27,7 +28,7 @@ public class UserManager : MonoBehaviour
     public delegate void NoConnectionCallback();
 
     private delegate void UsersReadyCallback();
-    private List<UserInfo> m_CachedUsers;
+    private Dictionary<string, UserInfo> m_CachedUsers;
     private List<string> m_CachedUsernames;
 
     private string m_UserToken;
@@ -49,12 +50,12 @@ public class UserManager : MonoBehaviour
     [System.Serializable]
     public struct UserProfile
     {
-        public string @class;
+        public long balance;
+        public string group;
         public string name;
         public string picture;
         public string role;
         public int security_level;
-        public int balance;
     }
 
     void Start ()
@@ -93,13 +94,13 @@ public class UserManager : MonoBehaviour
             //Debug.Log(request.downloadHandler.text);
             Dictionary<string, UserInfo> users = JsonConvert.DeserializeObject<Dictionary<string, UserInfo>>(request.downloadHandler.text);
             m_CachedUsernames = new List<string>();
-            m_CachedUsers = new List<UserInfo>();
+            m_CachedUsers = new Dictionary<string, UserInfo>();
 
             foreach (var user in users)
             {
                 Debug.Log(user.Value.username + ": " + user.Value._id);
                 m_CachedUsernames.Add(user.Value.username);
-                m_CachedUsers.Add(user.Value);
+                m_CachedUsers[user.Value._id] = user.Value;
             }
 
             if ( callback != null )
@@ -121,13 +122,23 @@ public class UserManager : MonoBehaviour
         }
     }
 
-    public int GetUserIndex(string user)
+    public string GetUserRealName(string id)
     {
-        if (m_CachedUsers != null)
+        return m_CachedUsers[id].profile.name;
+    }
+
+    public string GetUsernameByIndex(int index)
+    {
+        return m_CachedUsernames[index];
+    }
+
+    public int GetUserIndex(string username)
+    {
+        if (m_CachedUsernames != null)
         {
-            for (int i = 0; i < m_CachedUsers.Count; ++i)
+            for (int i = 0; i < m_CachedUsernames.Count; ++i)
             {
-                if (user.Equals(m_CachedUsers[i]))
+                if (username.Equals(m_CachedUsernames[i]))
                 {
                     return i;
                 }
@@ -137,16 +148,29 @@ public class UserManager : MonoBehaviour
         return -1;
     }
 
-    private UserProfile InternalGetCurrentUserProfile()
+    private string GetUserIdByUsername(string username)
     {
-        for (int i = 0; i < m_CachedUsers.Count; ++i)
+        foreach (KeyValuePair<string, UserInfo> pair in m_CachedUsers)
         {
-            if (m_CachedUsers[i].username != null && m_CachedUsers[i].username.Equals(CurrentUserName))
+            if ( pair.Value.username.Equals(username) )
             {
-                return m_CachedUsers[i].profile;
+                return pair.Key;
             }
         }
-        return default(UserProfile);
+
+        return null;
+    }
+
+    private UserProfile InternalGetCurrentUserProfile()
+    {
+        if (m_CachedUsers != null)
+        {
+            return m_CachedUsers[CurrentUser].profile;
+        }
+        else
+        {
+            return default(UserProfile);
+        }
     }
 
     public void GetCurrentUserInfo(UserProfileReceivedCallback callback, NoConnectionCallback failCallback)
@@ -160,11 +184,11 @@ public class UserManager : MonoBehaviour
         }
     }
 
-    public string GetUserNameByIndex(int index)
+    public string GetUserName(string id)
     {
         if (m_CachedUsers != null)
         {
-            return m_CachedUsers[index].username;
+            return m_CachedUsers[id].username;
         }
         else
         {
@@ -216,8 +240,9 @@ public class UserManager : MonoBehaviour
             
             Debug.Log(logindata.user.username + ": " + logindata.token);
 
+            CurrentUser = logindata.user._id;
             CurrentUserName = logindata.user.username;
-            CurrentUserClass = logindata.user.profile.@class;
+            CurrentUserClass = logindata.user.profile.role + " " + logindata.user.profile.group;
             CurrentUserImage = GetUserImage(CurrentUserName);
             CurrentUserBalance = logindata.user.profile.balance.ToString();
             CurrentUserRole = logindata.user.profile.role;
@@ -227,10 +252,16 @@ public class UserManager : MonoBehaviour
         }
     }
 
+    public void SetCurrentUserAuthorization(UnityWebRequest request)
+    {
+        request.SetRequestHeader("Authorization", "Bearer " + m_UserToken);
+    }
+
+    /*
     private IEnumerator TestAuthorizationCoroutine()
     {
         UnityWebRequest request = UnityWebRequest.Get("http://localhost:3000/api/testauth");
-        request.SetRequestHeader("Authorization", "Bearer " + m_UserToken);
+        SetCurrentUserAuthorization(request);
         yield return request.SendWebRequest();
 
         while (!request.isDone)
@@ -250,18 +281,16 @@ public class UserManager : MonoBehaviour
             Debug.Log("Authorization success!");
             Debug.Log(request.downloadHandler.text);
         }
-
     }
 
     public void TestAuthorization()
     {
         StartCoroutine(TestAuthorizationCoroutine());
-    }
+    }*/
 
     public void Login(string username, string pin, LoginSuccessfulCallback successCallback, LoginFailedCallback loginFailCallback, NoConnectionCallback failCallback)
     {
         StartCoroutine(TryLoginCoroutine(username, pin, successCallback, loginFailCallback, failCallback));
-
 
         /*
         StartCoroutine(GetUsersCoroutine(() =>
@@ -285,6 +314,7 @@ public class UserManager : MonoBehaviour
     
     public void Logout()
     {
+        CurrentUser = null;
         CurrentUserName = null;
     }
 	
