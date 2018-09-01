@@ -22,6 +22,11 @@ public class TopMenu : UIMenu
         m_ProfileImage.sprite = m_UserManager.CurrentUserImage; // TODO
         m_BalanceText.text = "BALANCE: " + profile.balance;
 
+        if ( m_UserManager.CurrentHackedUser != null )
+        {
+            m_NameText.text += " (hacked)";
+        }
+
         base.Show();
     }
 

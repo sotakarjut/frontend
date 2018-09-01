@@ -185,7 +185,14 @@ public class UserManager : MonoBehaviour
     {
         if (m_CachedUsers != null)
         {
-            return m_CachedUsers[CurrentUser].profile;
+            if (m_HackedUser != null)
+            {
+                return m_CachedUsers[m_HackedUser].profile;
+            }
+            else
+            {
+                return m_CachedUsers[CurrentUser].profile;
+            }
         }
         else
         {

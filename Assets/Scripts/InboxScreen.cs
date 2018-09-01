@@ -120,7 +120,7 @@ public class InboxScreen : UIScreen
         // find thread root
         MessageInfo m = m_MessageManager.GetMessage(id);
         int loops = 0;
-        while ( m.replyTo != null && loops < 10000)
+        while ( m.replyTo != null && m_MessageManager.MessageExists(m.replyTo) && loops < 10000)
         {
             m = m_MessageManager.GetMessage(m.replyTo);
             ++loops;
@@ -233,11 +233,11 @@ public class InboxScreen : UIScreen
         do
         {
             MessageInfo m = m_MessageManager.GetMessage(root);
-            if ( mode == InboxMode.Sent && m.sender.username == m_UserManager.CurrentUserName )
+            if ( mode == InboxMode.Sent && m.sender.username == m_UserManager.GetUserName(m_MessageManager.GetUserToShow()) )
             {
                 return true;
             }
-            if ( mode == InboxMode.Received && m.sender.username != m_UserManager.CurrentUserName )
+            if ( mode == InboxMode.Received && m.sender.username != m_UserManager.GetUserName(m_MessageManager.GetUserToShow()))
             {
                 otherSenderFound = true;
             }
@@ -293,7 +293,7 @@ public class InboxScreen : UIScreen
         }
 
         MessageInfo m = m_MessageManager.GetMessage(message);
-        if ( m.sender.username != m_UserManager.CurrentUserName )
+        if ( m.sender.username != m_UserManager.GetUserName(m_MessageManager.GetUserToShow()))
         {
             return m.sender._id;
         } else

@@ -69,6 +69,11 @@ public class MessageManager : MonoBehaviour
         m_Messages[index] = m;
     }*/
 
+    public bool MessageExists(string id)
+    {
+        return m_CachedMessages != null && m_CachedMessages.ContainsKey(id);
+    }
+
     public IEnumerator SendMessageCoroutine(MessageInfo m, MessageSentCallback success, MessageSendingError failure, NoConnectionCallback noconnection )
     {
         WWWForm form = new WWWForm();
@@ -176,7 +181,7 @@ public class MessageManager : MonoBehaviour
             WWWForm form = new WWWForm();
             form.AddField("targetId", m_UserManager.CurrentHackedUser);
 
-            request = UnityWebRequest.Get(Constants.serverAddress + "api/hack/messages?targetId=" + m_UserManager.CurrentHackedUser);
+            request = UnityWebRequest.Get(Constants.serverAddress + "api/hack/messages/" + m_UserManager.CurrentHackedUser);
         } else
         {
             request = UnityWebRequest.Get(Constants.serverAddress + "api/messages");
@@ -261,7 +266,7 @@ public class MessageManager : MonoBehaviour
         foreach (string id in m_CachedMessages.Keys )
         {
             MessageInfo m = GetMessage(id);
-            if ( m.replyTo == null )
+            if ( m.replyTo == null || !m_CachedMessages.ContainsKey(m.replyTo) )
             {
                 result.m_Roots.Add(id);
             } else
