@@ -13,6 +13,7 @@ public class UserManager : MonoBehaviour
     public Sprite CurrentUserImage { get; private set; }
     public string CurrentUserBalance { get; private set; }
     public string CurrentUserRole { get; private set; }
+    public string CurrentHackedUser { get { return m_HackedUser; } }
 
     public string ExampleClass;
     public Sprite ExampleImage;
@@ -26,12 +27,15 @@ public class UserManager : MonoBehaviour
     public delegate void LoginSuccessfulCallback();
     public delegate void LoginFailedCallback();
     public delegate void NoConnectionCallback();
+    public delegate void HackSuccessfulCallback(int duration);
+    public delegate void HackFailedCallback();
 
     private delegate void UsersReadyCallback();
     private Dictionary<string, UserInfo> m_CachedUsers;
     private List<string> m_CachedUsernames;
 
     private string m_UserToken;
+    private string m_HackedUser;
 
     [System.Serializable]
     public struct UserInfo
@@ -56,6 +60,7 @@ public class UserManager : MonoBehaviour
         public string picture;
         public string role;
         public int security_level;
+        public string title;
     }
 
     void Start ()
@@ -69,7 +74,7 @@ public class UserManager : MonoBehaviour
 
     private IEnumerator GetUsersCoroutine(UsersReadyCallback callback, NoConnectionCallback noconnectionCallback)
     {
-        UnityWebRequest request = UnityWebRequest.Get("http://localhost:3000/api/users");
+        UnityWebRequest request = UnityWebRequest.Get(Constants.serverAddress + "/api/users");
         request.chunkedTransfer = false;
 
         yield return request.SendWebRequest();
@@ -130,6 +135,21 @@ public class UserManager : MonoBehaviour
     public string GetUsernameByIndex(int index)
     {
         return m_CachedUsernames[index];
+    }
+
+    public string GetUserByIndex(int index)
+    {
+        if ( m_CachedUsers == null )
+        {
+            return null;
+        }
+
+        string name = GetUsernameByIndex(index);
+        foreach (UserInfo u in m_CachedUsers.Values)
+        {
+            if (name.Equals(u.username)) return u._id;
+        }
+        return null;
     }
 
     public int GetUserIndex(string username)
@@ -207,7 +227,7 @@ public class UserManager : MonoBehaviour
         WWWForm form = new WWWForm();
         form.AddField("username", username);
         form.AddField("password", password);
-        UnityWebRequest request = UnityWebRequest.Post("http://localhost:3000/api/login", form);
+        UnityWebRequest request = UnityWebRequest.Post(Constants.serverAddress + "api/login", form);
         //request.chunkedTransfer = false;
 
         yield return request.SendWebRequest();
@@ -260,7 +280,7 @@ public class UserManager : MonoBehaviour
     /*
     private IEnumerator TestAuthorizationCoroutine()
     {
-        UnityWebRequest request = UnityWebRequest.Get("http://localhost:3000/api/testauth");
+        UnityWebRequest request = UnityWebRequest.Get(Constants.serverAddress + "api/testauth");
         SetCurrentUserAuthorization(request);
         yield return request.SendWebRequest();
 
@@ -291,31 +311,88 @@ public class UserManager : MonoBehaviour
     public void Login(string username, string pin, LoginSuccessfulCallback successCallback, LoginFailedCallback loginFailCallback, NoConnectionCallback failCallback)
     {
         StartCoroutine(TryLoginCoroutine(username, pin, successCallback, loginFailCallback, failCallback));
-
-        /*
-        StartCoroutine(GetUsersCoroutine(() =>
-        {
-            if (m_CachedUsernames != null)
-            {
-                CurrentUserName = username;
-                CurrentUserClass = ExampleClass;
-                CurrentUserImage = GetUserImage(username);
-                CurrentUserBalance = ExampleBalance;
-
-                successCallback();
-            }
-            else
-            {
-                loginFailCallback();
-            }
-        }, failCallback ));
-        */
     }
     
     public void Logout()
     {
+        m_HackedUser = null;
         CurrentUser = null;
         CurrentUserName = null;
     }
-	
+
+    private string GetIP()
+    {
+        string hostName = System.Net.Dns.GetHostName();
+        return System.Net.Dns.GetHostEntry(hostName).AddressList[0].ToString();
+    }
+
+    private struct Duration
+    {
+        public int hackingDuration;
+    }
+
+    private IEnumerator TryHackCoroutine(string target, HackSuccessfulCallback success, HackFailedCallback fail, NoConnectionCallback noconnection)
+    {
+        WWWForm form = new WWWForm();
+        form.AddField("targetId", target);
+        form.AddField("terminalId", GetIP() );
+
+        UnityWebRequest request = UnityWebRequest.Post(Constants.serverAddress + "/api/hack/intiate", form);
+        SetCurrentUserAuthorization(request);
+        request.chunkedTransfer = false;
+
+        yield return request.SendWebRequest();
+
+        while (!request.isDone)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+
+        if (request.isNetworkError)
+        {
+            Debug.Log("Network error: Cannot hack: " + request.error + ", Code = " + request.responseCode);
+            noconnection();
+        }
+        else if (request.isHttpError)
+        {
+            if ( request.responseCode == 400)
+            {
+                Debug.Log("Http error: Missing data in hack: " + request.error + ", Code = " + request.responseCode);
+            }
+            else if (request.responseCode == 403)
+            {
+                Debug.Log("Http error: Not allowed to hack: " + request.error + ", Code = " + request.responseCode);
+            }
+            else if (request.responseCode == 404)
+            {
+                Debug.Log("Http error: Hack target does not exist: " + request.error + ", Code = " + request.responseCode);
+            }
+            else if (request.responseCode == 500)
+            {
+                Debug.Log("Http error: Internal database error: " + request.error + ", Code = " + request.responseCode);
+            }
+            fail();
+        }
+        else
+        {
+            Duration duration = JsonConvert.DeserializeObject<Duration>(request.downloadHandler.text);
+
+            if (success != null)
+            {
+                success(duration.hackingDuration/10);
+            }
+        }
+    }
+
+
+    public void Hack(string target, HackSuccessfulCallback success, HackFailedCallback fail, NoConnectionCallback noconnection)
+    {
+        StartCoroutine(TryHackCoroutine(target, success, fail, noconnection));
+    }
+
+    public void SetHackedUser(string target)
+    {
+        m_HackedUser = target;
+    }
 }
+

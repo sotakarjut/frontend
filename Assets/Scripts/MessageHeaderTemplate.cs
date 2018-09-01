@@ -37,7 +37,7 @@ public class MessageHeaderTemplate : MonoBehaviour
     {
         m_SenderImage.sprite = senderImage;
         m_TopicText.text = "Aihe: " + m.title;
-        m_SenderText.text = "Lähettäjä: " + partnerName;
+        m_SenderText.text = partnerName;
 
         if ( threadLength > 1 )
         {

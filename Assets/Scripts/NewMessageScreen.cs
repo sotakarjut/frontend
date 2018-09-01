@@ -7,6 +7,9 @@ public class NewMessageScreen : UIScreen
 {
     public MessageManager m_MessageManager;
     public UserManager m_UserManager;
+    public UIManager m_Manager;
+
+    public InboxScreen m_InboxScreen;
 
     public InputField m_TopicField;
     public Dropdown m_ReceiverDropdown;
@@ -79,7 +82,21 @@ public class NewMessageScreen : UIScreen
             m_Message.text = Regex.Replace(m.body, "^", ">", RegexOptions.Multiline);
 
             m_ReplyID = id;
+
+            m_ReceiverDropdown.value = m_UserManager.GetUserIndex(m.sender.username);
         }
+    }
+
+    private void MessageSent()
+    {
+        Debug.Log("Message sent successfully");
+        m_Manager.ShowScreen(m_InboxScreen);
+        m_InboxScreen.ShowSent();
+    }
+
+    private void MessageSendFailure()
+    {
+        Debug.Log("Message sending failed");
     }
 
     public void OnSend()
@@ -95,9 +112,8 @@ public class NewMessageScreen : UIScreen
         m.title = topic;
         m.recipient = m_UserManager.GetUsernameByIndex(receiver);
         m.body = message;
-        m_MessageManager.SendMessage(m);
-
-        Debug.Log("Sent message to user " + receiver + ". Topic = " + topic + "\nMessage = \n" + message);
+        Debug.Log("Sending message to user " + receiver + ". Topic = " + topic + "\nMessage = \n" + message);
+        m_MessageManager.SendMessage(m, MessageSent, MessageSendFailure, NoConnection);
 
         m_TopicField.text = "";
         m_ReceiverDropdown.value = 0;

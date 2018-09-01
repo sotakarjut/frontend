@@ -44,12 +44,16 @@ public class MessageManager : MonoBehaviour
     public delegate void MessagesReceivedCallback();
     public delegate void NoConnectionCallback();
     public delegate void MessageReceivingError();
+    public delegate void MessageSentCallback();
+    public delegate void MessageSendingError();
 
     public UserManager m_UserManager;
 
-    //private List<Message> m_CachedMessages;
     private Dictionary<string, MessageInfo> m_CachedMessages;
+    private string m_CachedMessageUser;
     private int m_NextId;
+
+    private float m_LastRefresh;
 
     void Start ()
     {
@@ -65,7 +69,7 @@ public class MessageManager : MonoBehaviour
         m_Messages[index] = m;
     }*/
 
-    public IEnumerator SendMessageCoroutine(MessageInfo m)
+    public IEnumerator SendMessageCoroutine(MessageInfo m, MessageSentCallback success, MessageSendingError failure, NoConnectionCallback noconnection )
     {
         WWWForm form = new WWWForm();
         form.AddField("title", m.title);
@@ -76,8 +80,18 @@ public class MessageManager : MonoBehaviour
             form.AddField("replyTo", m.replyTo);
         }
 
-        UnityWebRequest request = UnityWebRequest.Post("http://localhost:3000/api/messages", form);
-       
+        bool hacked = m_UserManager.CurrentHackedUser != null;
+
+        UnityWebRequest request;
+        if (hacked)
+        {
+            form.AddField("targetId", m_UserManager.CurrentHackedUser);
+            request = UnityWebRequest.Post(Constants.serverAddress + "api/hack/messages", form);
+        }
+        else
+        {
+            request = UnityWebRequest.Post(Constants.serverAddress + "api/messages", form);
+        }
 
         //Hashtable header = new Hashtable();
         //header.Add("Content-Type", "application/json");
@@ -103,6 +117,7 @@ public class MessageManager : MonoBehaviour
         if (request.isNetworkError)
         {
             Debug.Log("Network error: Cannot send message: " + request.error + ", Code = " + request.responseCode);
+            if (noconnection != null) noconnection();
         }
         else if (request.isHttpError)
         {
@@ -118,18 +133,32 @@ public class MessageManager : MonoBehaviour
             {
                 Debug.Log("Http error: Database search failed: " + request.error + ", Code = " + request.responseCode);
             }
+
+            if (failure != null) failure();
         }
         else if (request.responseCode == 200)
         {
             // response contains the message 
             Debug.Log("Message sent: " + request.downloadHandler.text);
+            GetMessages(true, () => { success(); }, noconnection, () => { failure(); } );
         }
 
     }
 
-    public void SendMessage(MessageInfo m)
+    public string GetUserToShow()
     {
-        StartCoroutine(SendMessageCoroutine(m));
+        if (m_UserManager.CurrentHackedUser != null)
+        {
+            return m_UserManager.CurrentHackedUser;
+        } else
+        {
+            return m_UserManager.CurrentUser;
+        }
+    }
+
+    public void SendMessage(MessageInfo m, MessageSentCallback success, MessageSendingError failure, NoConnectionCallback noconnection)
+    {
+        StartCoroutine(SendMessageCoroutine(m, success, failure, noconnection));
     }
 
     public MessageInfo GetMessage(string id)
@@ -139,8 +168,21 @@ public class MessageManager : MonoBehaviour
 
     public IEnumerator GetMessagesCoroutine(MessagesReceivedCallback success, NoConnectionCallback noconnection, MessageReceivingError failure)
     {
-        UnityWebRequest request = UnityWebRequest.Get("http://localhost:3000/api/messages");
+        bool hack = m_UserManager.CurrentHackedUser != null;
+
+        UnityWebRequest request;
+        if (hack)
+        {
+            WWWForm form = new WWWForm();
+            form.AddField("targetId", m_UserManager.CurrentHackedUser);
+
+            request = UnityWebRequest.Get(Constants.serverAddress + "api/hack/messages?targetId=" + m_UserManager.CurrentHackedUser);
+        } else
+        {
+            request = UnityWebRequest.Get(Constants.serverAddress + "api/messages");
+        }
         m_UserManager.SetCurrentUserAuthorization(request);
+
         yield return request.SendWebRequest();
         while (!request.isDone)
         {
@@ -150,14 +192,14 @@ public class MessageManager : MonoBehaviour
         if (request.isNetworkError)
         {
             Debug.Log("Network error: Cannot get messages: " + request.error + ", Code = " + request.responseCode);
-            noconnection();
+            if ( noconnection != null) noconnection();
         }
         else if (request.isHttpError)
         {
             if (request.responseCode == 500)
             {
                 Debug.Log("Http error: Database search failed: " + request.error + ", Code = " + request.responseCode);
-                failure();
+                if (failure != null) failure();
             }
         }
         else if (request.responseCode == 200)
@@ -167,23 +209,31 @@ public class MessageManager : MonoBehaviour
 
             Dictionary<string, MessageInfo> messageData = JsonConvert.DeserializeObject<Dictionary<string, MessageInfo>>(request.downloadHandler.text);
 
-
             m_CachedMessages = new Dictionary<string, MessageInfo>();
             foreach (MessageInfo m in messageData.Values)
             {
                 m_CachedMessages[m._id] = m;
             }
+            m_CachedMessageUser = GetUserToShow();
+
+            if ( success != null) success();
         }
+    }
+
+    private bool IsTimeToReloadMessages()
+    {
+        return Time.time > m_LastRefresh + 30f;
     }
 
     public void GetMessages(bool forceReload, MessagesReceivedCallback success, NoConnectionCallback noconnection, MessageReceivingError failure )
     {
-        if (m_CachedMessages == null || forceReload)
+        if (m_CachedMessages == null || forceReload || IsTimeToReloadMessages() || !GetUserToShow().Equals(m_CachedMessageUser) )
         {
+            m_LastRefresh = Time.time;
             StartCoroutine(GetMessagesCoroutine(success, noconnection, failure));
         } else
         {
-            success();
+            if ( success != null ) success();
         }
     }
 

@@ -304,7 +304,12 @@ public class InboxScreen : UIScreen
 
     private void UpdateInboxContents(InboxMode mode)
     {
-        m_MessageManager.GetMessages(false, () => { InboxReceived(mode); }, NoConnection, MessagesFailed);
+        m_MessageManager.GetMessages(false, () => 
+            {
+                InboxReceived(mode);
+            }, 
+            NoConnection, 
+            MessagesFailed);
     }
 
     private void InboxReceived(InboxMode mode)
