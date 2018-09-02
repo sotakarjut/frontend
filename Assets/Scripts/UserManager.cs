@@ -34,6 +34,8 @@ public class UserManager : MonoBehaviour
     private Dictionary<string, UserInfo> m_CachedUsers;
     private List<string> m_CachedUsernames;
 
+    private Dictionary<string, Role> m_CachedRoles;
+
     private string m_UserToken;
     private string m_HackedUser;
 
@@ -49,6 +51,16 @@ public class UserManager : MonoBehaviour
     {
         m_Manager.Logout();
         m_Manager.ShowNoConnection();
+    }
+
+    public struct Role
+    {
+        public string _id;
+        public string name;
+        public bool canImpersonate;
+        public bool canHack;
+        public bool canBeHacked;
+        public int hackerLevel;
     }
 
     [System.Serializable]
@@ -115,6 +127,77 @@ public class UserManager : MonoBehaviour
         }
     }
 
+    public string GetUserIdByName(string name)
+    {
+        if (m_CachedUsers == null) return null;
+
+        foreach (UserInfo ui in m_CachedUsers.Values)
+        {
+            if (name.Equals(ui.username) )
+            {
+                return ui._id;
+            }
+        }
+        return null;
+    }
+
+    private IEnumerator GetRolesCoroutine()
+    {
+        UnityWebRequest request = UnityWebRequest.Get(Constants.serverAddress + "/api/roles");
+        request.chunkedTransfer = false;
+
+        yield return request.SendWebRequest();
+
+        while (!request.isDone)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+
+        if (request.isNetworkError)
+        {
+            Debug.Log("Network error: Cannot get roles: " + request.error + ", Code = " + request.responseCode);
+        }
+        else if (request.isHttpError)
+        {
+            Debug.Log("Http error: Cannot get roles: " + request.error + ", Code = " + request.responseCode);
+        }
+        else
+        {
+            Dictionary<string, Role> roles = JsonConvert.DeserializeObject<Dictionary<string, Role>>(request.downloadHandler.text);
+            m_CachedRoles = new Dictionary<string, Role>();
+
+            foreach (Role r in roles.Values)
+            {
+                m_CachedRoles.Add(r._id, r);
+            }
+        }
+    }
+
+    public bool CanCurrentUserHack()
+    {
+        string role = m_CachedUsers[CurrentUser].profile.role;
+        return m_CachedRoles[role].canHack;
+    }
+
+    public bool CanCurrentUserImpersonate()
+    {
+        string role = m_CachedUsers[CurrentUser].profile.role;
+        
+        return m_CachedRoles[role].canImpersonate;
+    }
+
+    public bool CanImpersonate(string user)
+    {
+        string role = m_CachedUsers[user].profile.role;
+        return m_CachedRoles[role].canImpersonate;
+    }
+
+    public bool CanBeHacked(string user)
+    {
+        string role = m_CachedUsers[user].profile.role;
+        return m_CachedRoles[role].canBeHacked;
+    }
+
     public void GetUsers(UsersReceivedCallback callback, NoConnectionCallback failCallback)
     {
         if (m_CachedUsernames != null)
@@ -124,6 +207,7 @@ public class UserManager : MonoBehaviour
         else
         {
             StartCoroutine(GetUsersCoroutine( () => { callback(m_CachedUsernames); }, failCallback ));
+            StartCoroutine(GetRolesCoroutine());
         }
     }
 

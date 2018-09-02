@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class LoginScreen : UIScreen
@@ -8,6 +9,9 @@ public class LoginScreen : UIScreen
 
     public UIMenu m_TopMenu;
     public UIScreen m_InitialScreen;
+    public UIScreen m_InitialImpersonatorScreen;
+
+    public Button m_LoginButton;
 
     public Text m_InvalidLogin;
     public Text m_NoConnection;
@@ -26,6 +30,14 @@ public class LoginScreen : UIScreen
         m_PIN.text = "";
         m_InvalidLogin.gameObject.SetActive(false);
         m_NoConnection.gameObject.SetActive(false);
+        m_LoginButton.interactable = false;
+
+        m_UserManager.GetUsers(UsersReceived, null);
+    }
+
+    private void UsersReceived(List<string> users)
+    {
+        m_LoginButton.interactable = true;
     }
 
     public void LoginSuccessful()
@@ -34,7 +46,15 @@ public class LoginScreen : UIScreen
         m_NoConnection.gameObject.SetActive(false);
 
         m_Manager.ShowMenu(m_TopMenu);
-        m_Manager.ShowScreen(m_InitialScreen);
+
+        if (m_UserManager.CanCurrentUserImpersonate())
+        {
+            m_Manager.ShowScreen(m_InitialImpersonatorScreen);
+        }
+        else
+        {
+            m_Manager.ShowScreen(m_InitialScreen);
+        }
     }
 
     public void LoginFailed()

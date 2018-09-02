@@ -57,8 +57,19 @@ public class NewMessageScreen : UIScreen
 
     private void UsersReceived(List<string> users)
     {
+        // TODO: filter out impersonators
+        List<string> filtered = new List<string>();
+        for (int i = 0; i < users.Count; ++i)
+        {
+            string userid = m_UserManager.GetUserIdByName(users[i]);
+            if ( !m_UserManager.CanImpersonate(userid) )
+            {
+                filtered.Add(users[i]);
+            }
+        }
+
         m_ReceiverDropdown.ClearOptions();
-        m_ReceiverDropdown.AddOptions(users);
+        m_ReceiverDropdown.AddOptions(filtered);
         m_ReceiverDropdown.interactable = true;
         m_SendButton.interactable = true;
     }
@@ -77,13 +88,18 @@ public class NewMessageScreen : UIScreen
                 m_TopicField.text = m.title;
             }
 
-            //m_ReceiverDropdown.value = m_UserManager.GetUserIndex(m.sender);
-
             m_Message.text = Regex.Replace(m.body, "^", ">", RegexOptions.Multiline);
 
             m_ReplyID = id;
 
-            m_ReceiverDropdown.value = m_UserManager.GetUserIndex(m.sender.username);
+            for (int i = 0; i < m_ReceiverDropdown.options.Count; ++i)
+            {
+                if ( m_ReceiverDropdown.options[i].Equals(m.sender.username))
+                {
+                    m_ReceiverDropdown.value = i;
+                    break;
+                }
+            }
         }
     }
 
@@ -102,7 +118,6 @@ public class NewMessageScreen : UIScreen
     public void OnSend()
     {
         string topic = m_TopicField.text;
-        int receiver = m_ReceiverDropdown.value;
         string message = m_Message.text;
 
         MessageInfo m = new MessageInfo();
@@ -110,9 +125,9 @@ public class NewMessageScreen : UIScreen
         //m.sender = m_UserManager.CurrentUserName;
         //m.timestamp = System.DateTime.Now;
         m.title = topic;
-        m.recipient = m_UserManager.GetUsernameByIndex(receiver);
+        m.recipient = m_ReceiverDropdown.options[m_ReceiverDropdown.value].text;
         m.body = message;
-        Debug.Log("Sending message to user " + receiver + ". Topic = " + topic + "\nMessage = \n" + message);
+        Debug.Log("Sending message to user " + m.recipient + ". Topic = " + topic + "\nMessage = \n" + message);
         m_MessageManager.SendMessage(m, MessageSent, MessageSendFailure, NoConnection);
 
         m_TopicField.text = "";

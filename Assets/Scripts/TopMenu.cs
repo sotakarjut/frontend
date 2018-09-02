@@ -9,6 +9,7 @@ public class TopMenu : UIMenu
     public Text m_GroupText;
     public Image m_ProfileImage;
     public Text m_BalanceText;
+    public GameObject m_HackButton;
 
     void Start ()
     {
@@ -26,6 +27,9 @@ public class TopMenu : UIMenu
         {
             m_NameText.text += " (hacked)";
         }
+
+        bool canImpersonate = m_UserManager.CanCurrentUserImpersonate();
+        m_HackButton.SetActive(m_UserManager.CanCurrentUserHack() || canImpersonate );
 
         base.Show();
     }
