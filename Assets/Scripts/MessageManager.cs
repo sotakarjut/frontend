@@ -79,7 +79,7 @@ public class MessageManager : MonoBehaviour
         WWWForm form = new WWWForm();
         form.AddField("title", m.title);
         form.AddField("messageBody", m.body);
-        form.AddField("recipient", m.recipient);
+        form.AddField("recipientId", m.recipient);
         if (m.replyTo != null)
         {
             form.AddField("replyTo", m.replyTo);

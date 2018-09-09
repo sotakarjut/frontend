@@ -363,7 +363,7 @@ public class InboxScreen : UIScreen
         // disable the rest of the instances
         for (; index <= m_LastActiveMessageHeader; ++index )
         {
-            if ( index > 0 && index < m_LastActiveMessageHeader )
+            if ( index > 0 && index <= m_LastActiveMessageHeader )
             {
                 m_MessageHeaderSeparators[index - 1].gameObject.SetActive(false);
             }

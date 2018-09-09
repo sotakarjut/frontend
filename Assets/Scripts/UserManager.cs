@@ -24,6 +24,7 @@ public class UserManager : MonoBehaviour
 
     public delegate void UsersReceivedCallback(List<string> users);
     public delegate void UserProfileReceivedCallback(UserProfile userinfo);
+    public delegate void ListsReadyCallback();
     public delegate void LoginSuccessfulCallback();
     public delegate void LoginFailedCallback();
     public delegate void NoConnectionCallback();
@@ -33,6 +34,8 @@ public class UserManager : MonoBehaviour
     private delegate void UsersReadyCallback();
     private Dictionary<string, UserInfo> m_CachedUsers;
     private List<string> m_CachedUsernames;
+    private Dictionary<string, ListInfo> m_CachedLists;
+    private List<string> m_CachedListNames;
 
     private Dictionary<string, Role> m_CachedRoles;
 
@@ -75,6 +78,13 @@ public class UserManager : MonoBehaviour
         public string title;
     }
 
+    [System.Serializable]
+    public struct ListInfo
+    {
+        public string _id;
+        public string name;
+    }
+
     void Start ()
     {
 	}
@@ -82,6 +92,61 @@ public class UserManager : MonoBehaviour
     public Sprite GetUserImage(string username)
     {
         return ExampleImage;
+    }
+
+    private IEnumerator GetMailingListsCoroutine(ListsReadyCallback success, NoConnectionCallback noConnection)
+    {
+        UnityWebRequest request = UnityWebRequest.Get(Constants.serverAddress + "/api/mailinglists");
+        request.chunkedTransfer = false;
+
+        yield return request.SendWebRequest();
+
+        while (!request.isDone)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+
+        if (request.isNetworkError)
+        {
+            Debug.Log("Network error: Cannot get lists: " + request.error + ", Code = " + request.responseCode);
+            noConnection();
+        }
+        else if (request.isHttpError)
+        {
+            Debug.Log("Http error: Cannot get lists: " + request.error + ", Code = " + request.responseCode);
+            noConnection();
+        }
+        else
+        {
+            //Debug.Log(request.downloadHandler.text);
+            Dictionary<string, ListInfo> lists = JsonConvert.DeserializeObject<Dictionary<string, ListInfo>>(request.downloadHandler.text);
+            m_CachedListNames = new List<string>();
+            m_CachedLists = new Dictionary<string, ListInfo>();
+
+            foreach (var list in lists)
+            {
+                Debug.Log(list.Value.name + ": " + list.Value._id);
+                m_CachedListNames.Add(list.Value.name);
+                m_CachedLists[list.Value._id] = list.Value;
+            }
+
+            if (success != null)
+            {
+                success();
+            }
+        }
+    }
+
+    public List<string> GetMailingListNames()
+    {
+        if (m_CachedListNames != null)
+        {
+            return m_CachedListNames;
+        }
+        else
+        {
+            return null;
+        }
     }
 
     private IEnumerator GetUsersCoroutine(UsersReadyCallback callback, NoConnectionCallback noconnectionCallback)
@@ -120,11 +185,30 @@ public class UserManager : MonoBehaviour
                 m_CachedUsers[user.Value._id] = user.Value;
             }
 
+            while ( m_CachedLists == null || m_CachedRoles == null )
+            {
+                yield return new WaitForEndOfFrame();
+            }
+
             if ( callback != null )
             {
                 callback();
             }
         }
+    }
+
+    public string GetListIdByName(string name)
+    {
+        if (m_CachedLists == null) return null;
+
+        foreach (ListInfo li in m_CachedLists.Values)
+        {
+            if ( name.Equals(li.name))
+            {
+                return li._id;
+            }
+        }
+        return null;
     }
 
     public string GetUserIdByName(string name)
@@ -206,8 +290,9 @@ public class UserManager : MonoBehaviour
         }
         else
         {
-            StartCoroutine(GetUsersCoroutine( () => { callback(m_CachedUsernames); }, failCallback ));
             StartCoroutine(GetRolesCoroutine());
+            StartCoroutine(GetMailingListsCoroutine( null, failCallback ));
+            StartCoroutine(GetUsersCoroutine( () => { callback(m_CachedUsernames); }, failCallback ));
         }
     }
 
@@ -291,6 +376,8 @@ public class UserManager : MonoBehaviour
             callback(InternalGetCurrentUserProfile());
         } else
         {
+            StartCoroutine(GetRolesCoroutine());
+            StartCoroutine(GetMailingListsCoroutine(null, failCallback));
             StartCoroutine(GetUsersCoroutine( () => { callback(InternalGetCurrentUserProfile()); }, failCallback ));
         }
     }

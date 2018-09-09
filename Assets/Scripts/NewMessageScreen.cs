@@ -17,6 +17,7 @@ public class NewMessageScreen : UIScreen
     public Button m_SendButton;
 
     private string m_ReplyID;
+    private int m_FirstListIndex;
 
 	void Start ()
     {
@@ -57,7 +58,6 @@ public class NewMessageScreen : UIScreen
 
     private void UsersReceived(List<string> users)
     {
-        // TODO: filter out impersonators
         List<string> filtered = new List<string>();
         for (int i = 0; i < users.Count; ++i)
         {
@@ -65,6 +65,16 @@ public class NewMessageScreen : UIScreen
             if ( !m_UserManager.CanImpersonate(userid) )
             {
                 filtered.Add(users[i]);
+            }
+        }
+
+        m_FirstListIndex = filtered.Count;
+        List<string> lists = m_UserManager.GetMailingListNames();
+        if (lists != null)
+        {
+            for (int i = 0; i < lists.Count; ++i)
+            {
+                filtered.Add(lists[i]);
             }
         }
 
@@ -94,7 +104,7 @@ public class NewMessageScreen : UIScreen
 
             for (int i = 0; i < m_ReceiverDropdown.options.Count; ++i)
             {
-                if ( m_ReceiverDropdown.options[i].Equals(m.sender.username))
+                if ( m_ReceiverDropdown.options[i].text.Equals(m.sender.username))
                 {
                     m_ReceiverDropdown.value = i;
                     break;
@@ -125,7 +135,14 @@ public class NewMessageScreen : UIScreen
         //m.sender = m_UserManager.CurrentUserName;
         //m.timestamp = System.DateTime.Now;
         m.title = topic;
-        m.recipient = m_ReceiverDropdown.options[m_ReceiverDropdown.value].text;
+        if (m_ReceiverDropdown.value < m_FirstListIndex)
+        {
+            m.recipient = m_UserManager.GetUserIdByName(m_ReceiverDropdown.options[m_ReceiverDropdown.value].text);
+        } else
+        {
+            m.recipient = m_UserManager.GetListIdByName(m_ReceiverDropdown.options[m_ReceiverDropdown.value].text);
+        }
+
         m.body = message;
         Debug.Log("Sending message to user " + m.recipient + ". Topic = " + topic + "\nMessage = \n" + message);
         m_MessageManager.SendMessage(m, MessageSent, MessageSendFailure, NoConnection);
