@@ -13,6 +13,15 @@ Frontend project for the Sotakarjut larp communication application.
 
 * Unity 3d version 2018.2.0f2
 
+## Production Deployment
+
+* Merge any changes from the master into the production branch
+* Build and test the app
+* Create a zip file named Triton-frontend-webbuild.zip that has the build in a Triton-frontend-webbuild/ directory
+* Create a new release to the production branch with a tag named as "vX.Y" where the X.Y (e.g. v1.0) is the version number. Note that only releases with description are taken into account, so be sure to add the description to the release.
+* To trigger the auto-deployment, update the RELEASE file with the latest version number and commit+push it to the production branch
+* This triggers a webhook that will autodeploy the build on the production server
+
 ## Authors
 
 * **Timo Kellomäki** - [Daemou](https://github.com/Daemou)
