@@ -172,7 +172,7 @@ public class InboxScreen : UIScreen
                 m_MessageSeparators[i - 1].gameObject.SetActive(true);
             }
 
-            m_MessageInstances[i].SetData(threadMessages[i].title, m_UserManager.GetUserRealName(threadMessages[i].sender._id),
+            m_MessageInstances[i].SetData(threadMessages[i], threadMessages[i].title, m_UserManager.GetUserRealName(threadMessages[i].sender._id),
                 m_UserManager.GetUserRealName(threadMessages[i].recipient), threadMessages[i].body);
             m_MessageInstances[i].gameObject.SetActive(true);
         }
@@ -237,9 +237,9 @@ public class InboxScreen : UIScreen
             {
                 return true;
             }
-            if ( mode == InboxMode.Received && m.sender.username != m_UserManager.GetUserName(m_MessageManager.GetUserToShow()))
+            if ( mode == InboxMode.Received && m.recipient == m_MessageManager.GetUserToShow())
             {
-                otherSenderFound = true;
+                return true;
             }
 
             if (threads.m_Next.ContainsKey(root))
@@ -251,25 +251,24 @@ public class InboxScreen : UIScreen
             }
         } while (true);
 
-        return otherSenderFound;
+        return false;
     }
 
     private System.DateTime GetThreadTimestamp(string root, MessageManager.ThreadStructure threads)
     {
-        //System.DateTime result;
-        return System.DateTime.Today;
+        System.DateTime result;
+        //return System.DateTime.Today;
 
-        /*
-        result = m_MessageManager.GetMessage(root).timestamp;
+        result = m_MessageManager.GetMessage(root).GetTimeStamp();
         if (threads.m_Next.ContainsKey(root))
         {
             root = threads.m_Next[root];
             do
             {
-                Message m = m_MessageManager.GetMessage(root);
-                if (m.timestamp > result)
+                MessageInfo m = m_MessageManager.GetMessage(root);
+                if (m.GetTimeStamp() > result)
                 {
-                    result = m.timestamp;
+                    result = m.GetTimeStamp();
                 }
                 if (threads.m_Next.ContainsKey(root))
                 {
@@ -282,7 +281,7 @@ public class InboxScreen : UIScreen
             }
             while (true);
         }
-        return result;*/
+        return result;
     }
 
     private string GetLastThreadPartner(MessageManager.ThreadStructure threads, string message)
@@ -326,7 +325,7 @@ public class InboxScreen : UIScreen
             }
         }
 
-        //visibleThreadRoots.Sort((t1, t2) => { return GetThreadTimestamp(messages, threads, t2).CompareTo(GetThreadTimestamp(messages, threads, t1)); });
+        visibleThreadRoots.Sort((t1, t2) => { return GetThreadTimestamp(t2, threads).CompareTo(GetThreadTimestamp(t1, threads)); });
 
         int index = 0;
         for (int i = 0; i < visibleThreadRoots.Count; ++i)

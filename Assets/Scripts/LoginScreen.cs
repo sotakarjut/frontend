@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class LoginScreen : UIScreen
 {
@@ -21,6 +22,31 @@ public class LoginScreen : UIScreen
 
     private void Start()
     {
+        EventSystem.current.SetSelectedGameObject(m_ID.gameObject);
+        m_ID.OnPointerClick(new PointerEventData(EventSystem.current));
+    }
+
+    private void Update()
+    {
+        if ( Input.GetKeyDown(KeyCode.Tab))
+        {
+            EventSystem sys = EventSystem.current;
+
+            if ( sys.currentSelectedGameObject == m_ID.gameObject )
+            {
+                sys.SetSelectedGameObject(m_PIN.gameObject);
+                m_PIN.OnPointerClick(new PointerEventData(EventSystem.current));
+            } else if (sys.currentSelectedGameObject == m_PIN.gameObject)
+            {
+                sys.SetSelectedGameObject(m_ID.gameObject);
+                m_ID.OnPointerClick(new PointerEventData(EventSystem.current));
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            OnLogin();
+        }
     }
 
     public override void Show()

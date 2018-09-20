@@ -47,7 +47,7 @@ public class MessageHeaderTemplate : MonoBehaviour
             m_ThreadLengthText.text = "";
         }
 
-        //m_TimeStampText.text = m.timestamp.ToString();
+        m_TimeStampText.text = m.GetTimeStamp().ToString("d.M.yyyy H:mm");
         m_OpenButton.onClick.RemoveAllListeners();
         m_OpenButton.onClick.AddListener(delegate { OpenMessage(screen, m._id); } );
 

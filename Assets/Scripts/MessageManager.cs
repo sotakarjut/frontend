@@ -36,6 +36,23 @@ public struct MessageInfo
     public string title;
     public string createdAt;
     public string replyTo;
+
+    public System.DateTime GetTimeStamp()
+    {
+        System.DateTime result;
+        if (createdAt != null )
+        {
+            //if (System.DateTime.TryParse(createdAt, null, System.Globalization.DateTimeStyles.None, out result) )
+            //if (System.DateTime.TryParseExact(createdAt, "yyyy-mm-ddTHH:mm:ss.fff\\Z", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out result) )
+            if (System.DateTime.TryParseExact(createdAt, "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out result))
+            {
+                return result;
+            }
+        }
+
+        Debug.Log("Error: Can't parse date");
+        return System.DateTime.Now;
+    }
 }
 
 public class MessageManager : MonoBehaviour
