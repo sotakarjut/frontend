@@ -500,8 +500,15 @@ public class UserManager : MonoBehaviour
 
     private string GetIP()
     {
+        try
+        {
+
         string hostName = System.Net.Dns.GetHostName();
         return System.Net.Dns.GetHostEntry(hostName).AddressList[0].ToString();
+        } catch (Exception e)
+        {
+            return "Unknown terminal";
+        }
     }
 
     private struct Duration

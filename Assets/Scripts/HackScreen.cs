@@ -22,7 +22,7 @@ public class HackScreen : UIScreen
     private List<string> m_CachedTargets;
     private List<string> m_CachedTargetNames;
 
-    void Start()
+    void Awake()
     {
         m_CachedTargets = new List<string>();
         m_CachedTargetNames = new List<string>();
@@ -134,10 +134,13 @@ public class HackScreen : UIScreen
 
     private void RepopulateTargets()
     {
-        m_HackTargetDropdown.ClearOptions();
-        m_CachedTargets.Clear();
-        m_CachedTargetNames.Clear();
-        m_UserManager.GetUsers(RepopulateUsersReceived, null);
+        if (m_CachedTargets != null)
+        {
+            m_HackTargetDropdown.ClearOptions();
+            m_CachedTargets.Clear();
+            m_CachedTargetNames.Clear();
+            m_UserManager.GetUsers(RepopulateUsersReceived, null);
+        }
     }
 
     public void OnShowPlayersToggled(bool enabled)
