@@ -3945,7 +3945,7 @@ MonoBehaviour:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0, g: 0.7764706, b: 0.7372549, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_DisabledColor: {r: 1, g: 1, b: 1, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -7438,7 +7438,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1108563307
 RectTransform:
   m_ObjectHideFlags: 0
@@ -10232,7 +10232,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1528081661
 RectTransform:
   m_ObjectHideFlags: 0
@@ -10308,6 +10308,7 @@ MonoBehaviour:
   m_InitialScreen: {fileID: 1919802988}
   m_InitialImpersonatorScreen: {fileID: 124881186}
   m_LoginButton: {fileID: 587050768}
+  m_LoginButtonText: {fileID: 569766222}
   m_InvalidLogin: {fileID: 608804593}
   m_NoConnection: {fileID: 2127466985}
   m_ID: {fileID: 1819187589}
@@ -12685,7 +12686,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1919802985
 RectTransform:
   m_ObjectHideFlags: 0

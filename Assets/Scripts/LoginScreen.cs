@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Collections;
+
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -13,6 +15,7 @@ public class LoginScreen : UIScreen
     public UIScreen m_InitialImpersonatorScreen;
 
     public Button m_LoginButton;
+    public Text m_LoginButtonText;
 
     public Text m_InvalidLogin;
     public Text m_NoConnection;
@@ -57,13 +60,31 @@ public class LoginScreen : UIScreen
         m_InvalidLogin.gameObject.SetActive(false);
         m_NoConnection.gameObject.SetActive(false);
         m_LoginButton.interactable = false;
+        m_LoginButtonText.color = new Color(.5f, .5f, .5f);
 
-        m_UserManager.GetUsers(UsersReceived, null);
+        m_UserManager.GetUsers(UsersReceived, UsersFailed);
+    }
+
+    private void UsersFailed()
+    {
+        m_NoConnection.gameObject.SetActive(true);
+        m_LoginButton.interactable = false;
+        m_LoginButtonText.color = new Color(.5f, .5f, .5f);
+        StartCoroutine(RetryUsers());
+    }
+
+    private IEnumerator RetryUsers()
+    {
+        yield return new WaitForSeconds(10f);
+
+        m_UserManager.GetUsers(UsersReceived, UsersFailed);
     }
 
     private void UsersReceived(List<string> users)
     {
+        m_NoConnection.gameObject.SetActive(false);
         m_LoginButton.interactable = true;
+        m_LoginButtonText.color = new Color(1f,1f,1f);
     }
 
     public void LoginSuccessful()
@@ -96,10 +117,9 @@ public class LoginScreen : UIScreen
     {
         m_InvalidLogin.gameObject.SetActive(false);
         m_NoConnection.gameObject.SetActive(true);
-
-        // TODO: these are for debugging without backend
-        m_Manager.ShowMenu(m_TopMenu);
-        m_Manager.ShowScreen(m_InitialScreen);
+        m_LoginButton.interactable = false;
+        m_LoginButtonText.color = new Color(.5f, .5f, .5f);
+        // TODO: test for connection
     }
 
     public void OnLogin()
