@@ -33,7 +33,7 @@ public class MessageHeaderTemplate : MonoBehaviour
 
     }
 
-    public void SetData(MessageInfo m, string partnerName, Sprite senderImage, InboxScreen screen, int threadLength)
+    public void SetData(MessageInfo m, System.DateTime timestamp, string partnerName, Sprite senderImage, InboxScreen screen, int threadLength)
     {
         m_SenderImage.sprite = senderImage;
         m_TopicText.text = "Aihe: " + m.title;
@@ -47,7 +47,8 @@ public class MessageHeaderTemplate : MonoBehaviour
             m_ThreadLengthText.text = "";
         }
 
-        m_TimeStampText.text = m.GetTimeStamp().ToString("d.M.yyyy H:mm");
+        //m_TimeStampText.text = m.GetTimeStamp().ToString("d.M.yyyy H:mm");
+        m_TimeStampText.text = MessageManager.GetTimeSince(timestamp);
         m_OpenButton.onClick.RemoveAllListeners();
         m_OpenButton.onClick.AddListener(delegate { OpenMessage(screen, m._id); } );
 

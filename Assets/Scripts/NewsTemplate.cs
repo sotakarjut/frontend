@@ -19,7 +19,8 @@ public class NewsTemplate : MonoBehaviour
     {
         m_TopicText.text = n.title;
         m_SenderText.text = "Kirjoittaja: " + n.author.profile.name;
-        m_TimeStampText.text = n.GetTimeStamp().ToString("d.M.yyyy H:mm");
+        //m_TimeStampText.text = n.GetTimeStamp().ToString("d.M.yyyy H:mm");
+        m_TimeStampText.text = MessageManager.GetTimeSince(n.GetTimeStamp());
         m_MessageText.text = n.body;
     }
 }
