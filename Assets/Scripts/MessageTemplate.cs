@@ -22,7 +22,8 @@ public class MessageTemplate : MonoBehaviour
         m_TopicText.text = title;
         m_SenderText.text = "Lähettäjä: " + sender;
         m_ReceiverText.text = "Vastaanottaja: " + recipient;
-        m_TimeStampText.text = m.GetTimeStamp().ToString("d.M.yyyy H:mm");
+        m_TimeStampText.text = MessageManager.GetTimeSince( m.GetTimeStamp() );
+        //m_TimeStampText.text = m.GetTimeStamp().ToString("d.M.yyyy H:mm");
         m_MessageText.text = body;
     }
 }

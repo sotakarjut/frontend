@@ -86,6 +86,21 @@ public class MessageManager : MonoBehaviour
         m_Messages[index] = m;
     }*/
 
+    public static string GetTimeSince(System.DateTime time)
+    {
+        System.TimeSpan diff = System.DateTime.UtcNow - time;
+        if ( diff.Days > 0 )
+        {
+            return diff.Days + " päivää sitten";
+        } else if ( diff.Hours > 0 )
+        {
+            return diff.Hours + " h " + diff.Minutes + " min sitten";
+        } else
+        {
+            return diff.Minutes + " min sitten";
+        }
+    }
+
     public bool MessageExists(string id)
     {
         return m_CachedMessages != null && m_CachedMessages.ContainsKey(id);

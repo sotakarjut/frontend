@@ -57,12 +57,16 @@ public class HackScreen : UIScreen
 
     public void OnHack()
     {
-        int targetIndex = m_HackTargetDropdown.value;
-        //m_HackTarget = m_UserManager.GetUserByIndex(targetIndex);
-        m_HackTarget = m_CachedTargets[targetIndex];
+        if (m_HackTargetDropdown.options.Count > 0)
+        {
 
-        Debug.Log("starting hack for " + m_HackTarget);
-        m_UserManager.Hack(m_HackTarget, Hacked, HackFailed, NoConnection);
+            int targetIndex = m_HackTargetDropdown.value;
+            //m_HackTarget = m_UserManager.GetUserByIndex(targetIndex);
+            m_HackTarget = m_CachedTargets[targetIndex];
+
+            Debug.Log("starting hack for " + m_HackTarget);
+            m_UserManager.Hack(m_HackTarget, Hacked, HackFailed, NoConnection);
+        }
     }
 
     private void Hacked(int duration)
