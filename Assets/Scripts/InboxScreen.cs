@@ -352,7 +352,8 @@ public class InboxScreen : UIScreen
             string message = visibleThreadRoots[i];
             string partner = GetLastThreadPartner(threads, message);
             MessageInfo m = m_MessageManager.GetMessage(message);
-            instance.SetData(m, GetThreadTimestamp(message, threads), m_UserManager.GetUserRealName(partner), m_UserManager.GetUserImage(partner), this, CountThreadLength(threads, message));
+            instance.SetData(m, GetThreadTimestamp(message, threads), m_UserManager.GetUserRealName(partner), this, CountThreadLength(threads, message));
+            m_UserManager.GetUserImage(partner, instance.m_SenderImage);
             instance.gameObject.SetActive(true);
 
             ++index;

@@ -140,12 +140,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 447edc3175abf674c83489cab827b413, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ExampleClass: CLASS
-  ExampleImage: {fileID: 21300000, guid: 0a735aa4e4f1d9147abba65155b75d68, type: 3}
-  ExampleBalance: 1000
-  ExampleUsers:
-  - Sika
-  - Possu
+  NoProfileImage: {fileID: 21300000, guid: 0a735aa4e4f1d9147abba65155b75d68, type: 3}
   m_Manager: {fileID: 1949260609}
 --- !u!4 &98166324
 Transform:
@@ -681,6 +676,16 @@ Prefab:
       propertyPath: m_InboxScreen
       value: 
       objectReference: {fileID: 1698116297}
+    - target: {fileID: 224443640819742928, guid: 75d099799ab5acc45a908bcf9e4b55d4,
+        type: 2}
+      propertyPath: m_AnchoredPosition.y
+      value: -463.70328
+      objectReference: {fileID: 0}
+    - target: {fileID: 224443640819742928, guid: 75d099799ab5acc45a908bcf9e4b55d4,
+        type: 2}
+      propertyPath: m_SizeDelta.y
+      value: 567.40656
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 75d099799ab5acc45a908bcf9e4b55d4, type: 2}
   m_IsPrefabAsset: 0
@@ -1126,6 +1131,11 @@ Prefab:
       propertyPath: m_NewMessageScreen
       value: 
       objectReference: {fileID: 466498961}
+    - target: {fileID: 224494855908408994, guid: 4b66caa760d64774582a960b759cf594,
+        type: 2}
+      propertyPath: m_AnchoredPosition.y
+      value: -18.353027
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4b66caa760d64774582a960b759cf594, type: 2}
   m_IsPrefabAsset: 0
