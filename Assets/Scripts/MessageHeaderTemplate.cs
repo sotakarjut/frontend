@@ -20,7 +20,7 @@ public class MessageHeaderTemplate : MonoBehaviour
 
 	void Start ()
     {
-		
+        //m_SenderImage.mainTexture = new Texture2D(500, 500);
 	}
 
     private void OpenMessage(InboxScreen screen, string id)
@@ -33,9 +33,9 @@ public class MessageHeaderTemplate : MonoBehaviour
 
     }
 
-    public void SetData(MessageInfo m, System.DateTime timestamp, string partnerName, Sprite senderImage, InboxScreen screen, int threadLength)
+    public void SetData(MessageInfo m, System.DateTime timestamp, string partnerName, InboxScreen screen, int threadLength)
     {
-        m_SenderImage.sprite = senderImage;
+        //m_SenderImage.sprite = senderImage;
         m_TopicText.text = "Aihe: " + m.title;
         m_SenderText.text = partnerName;
 

@@ -20,7 +20,7 @@ public class TopMenu : UIMenu
         m_NameText.text = profile.name;
         m_TitleText.text = profile.title;
         m_GroupText.text = profile.group;
-        m_ProfileImage.sprite = m_UserManager.CurrentUserImage; // TODO
+        //m_ProfileImage.sprite = m_UserManager.CurrentUserImage; // TODO
         m_BalanceText.text = "BALANCE: " + profile.balance;
 
         if ( m_UserManager.CurrentHackedUser != null )
@@ -31,6 +31,8 @@ public class TopMenu : UIMenu
         bool canImpersonate = m_UserManager.CanCurrentUserImpersonate();
         m_HackButton.SetActive(m_UserManager.CanCurrentUserHack() || canImpersonate );
 
+        m_UserManager.GetUserImage(m_UserManager.CurrentUser, m_ProfileImage);
+
         base.Show();
     }
 
@@ -38,12 +40,14 @@ public class TopMenu : UIMenu
     {
         //m_UserManager.NoConnection();
 
+        /*
         // TODO: this is for testing without backend
         m_NameText.text = "No connection name";
         m_TitleText.text = "Worker";
         m_GroupText.text = "Without connection";
         m_ProfileImage.sprite = m_UserManager.CurrentUserImage; // TODO
         m_BalanceText.text = "BALANCE: " + 1234;
+        */
 
         base.Show();
     }
@@ -51,5 +55,10 @@ public class TopMenu : UIMenu
     public override void Show()
     {
         m_UserManager.GetCurrentUserInfo(UserInfoReceived, NoConnection);
+    }
+
+    public override void Hide()
+    {
+        base.Hide();
     }
 }

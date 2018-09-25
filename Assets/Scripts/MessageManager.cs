@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
+using System;
 
 /*
 [System.Serializable]
@@ -37,22 +38,20 @@ public struct MessageInfo
     public string createdAt;
     public string replyTo;
 
-    public System.DateTime GetTimeStamp()
-    {
-        System.DateTime result;
-        if (createdAt != null )
-        {
-            //if (System.DateTime.TryParse(createdAt, null, System.Globalization.DateTimeStyles.None, out result) )
-            //if (System.DateTime.TryParseExact(createdAt, "yyyy-mm-ddTHH:mm:ss.fff\\Z", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out result) )
-            if (System.DateTime.TryParseExact(createdAt, "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out result))
-            {
-                return result;
-            }
-        }
+}
 
-        Debug.Log("Error: Can't parse date");
-        return System.DateTime.Now;
-    }
+[System.Serializable]
+public struct LatestRecipient
+{
+    public string _id;
+    public string username;
+}
+
+[System.Serializable]
+public struct LatestInfo
+{
+    public LatestRecipient recipient;
+    public string createdAt;
 }
 
 public class MessageManager : MonoBehaviour
@@ -62,6 +61,43 @@ public class MessageManager : MonoBehaviour
     public delegate void NoConnectionCallback();
     public delegate void MessageReceivingError();
     public delegate void MessageSentCallback();
+    public delegate void LatestReceivedCallback(List<LatestInfo> latest);
+    public delegate void LatestFailedCallback();
+
+    private IEnumerator GetLatestCoroutine(LatestReceivedCallback success, LatestFailedCallback failure)
+    {
+        UnityWebRequest request = UnityWebRequest.Get(Constants.serverAddress + "/api/messages/latest");
+        request.chunkedTransfer = false;
+
+        yield return request.SendWebRequest();
+
+        while (!request.isDone)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+
+        if (request.isNetworkError)
+        {
+            Debug.Log("Network error: Cannot get latest: " + request.error + ", Code = " + request.responseCode);
+            if (failure != null) failure();
+        }
+        else if (request.isHttpError)
+        {
+            Debug.Log("Http error: Cannot get latest: " + request.error + ", Code = " + request.responseCode);
+            if (failure != null) failure();
+        }
+        else
+        {
+            List<LatestInfo> latest = JsonConvert.DeserializeObject<List<LatestInfo>>(request.downloadHandler.text);
+            success(latest);
+        }
+    }
+
+    public void GetLatest(LatestReceivedCallback success, LatestFailedCallback failure)
+    {
+        StartCoroutine(GetLatestCoroutine(success, failure));
+    }
+
     public delegate void MessageSendingError();
 
     public UserManager m_UserManager;
@@ -86,9 +122,26 @@ public class MessageManager : MonoBehaviour
         m_Messages[index] = m;
     }*/
 
-    public static string GetTimeSince(System.DateTime time)
+    public static DateTime ParseTimeStamp(string createdAt)
     {
-        System.TimeSpan diff = System.DateTime.UtcNow - time;
+        System.DateTime result;
+        if (createdAt != null)
+        {
+            //if (System.DateTime.TryParse(createdAt, null, System.Globalization.DateTimeStyles.None, out result) )
+            //if (System.DateTime.TryParseExact(createdAt, "yyyy-mm-ddTHH:mm:ss.fff\\Z", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out result) )
+            if (System.DateTime.TryParseExact(createdAt, "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out result))
+            {
+                return result;
+            }
+        }
+
+        Debug.Log("Error: Can't parse date");
+        return DateTime.Now;
+    }
+
+    public static string GetTimeSince(DateTime time)
+    {
+        TimeSpan diff = DateTime.UtcNow - time;
         if ( diff.Days > 0 )
         {
             return diff.Days + " päivää sitten";

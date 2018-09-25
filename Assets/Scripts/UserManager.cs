@@ -4,21 +4,20 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
 using System;
+using UnityEngine.UI;
 
 public class UserManager : MonoBehaviour
 {
     public string CurrentUser {get; private set; }
     public string CurrentUserName { get; private set; }
     public string CurrentUserClass { get; private set; }
-    public Sprite CurrentUserImage { get; private set; }
+    //public Sprite CurrentUserImage { get; private set; }
     public string CurrentUserBalance { get; private set; }
     public string CurrentUserRole { get; private set; }
     public string CurrentHackedUser { get { return m_HackedUser; } }
 
-    public string ExampleClass;
-    public Sprite ExampleImage;
-    public string ExampleBalance;
-    public List<string> ExampleUsers;
+    //public Sprite ExampleImage;
+    public Sprite NoProfileImage;
 
     public UIManager m_Manager;
 
@@ -89,9 +88,37 @@ public class UserManager : MonoBehaviour
     {
 	}
 
-    public Sprite GetUserImage(string username)
+    private IEnumerator GetUserImageCoroutine(string user, Image target)
     {
-        return ExampleImage;
+        string url = m_CachedUsers[user].profile.picture;
+        /*
+        if (UnityEngine.Random.Range(0, 2) == 0)
+        {
+            url = "https://upload.wikimedia.org/wikipedia/commons/c/c6/Sierpinski_square.jpg";
+        } else
+        {
+            url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfW_MAkXEukLt-FRNrb17d-vrHT1cNS9PxIJT8o5nMxYcocZVU";
+        }*/
+
+
+        using (WWW www = new WWW(url))
+        {
+            yield return www;
+            //www.LoadImageIntoTexture(target);
+            if (www.texture != null)
+            {
+                target.overrideSprite = Sprite.Create(www.texture, new Rect(0, 0, www.texture.width, www.texture.height), new Vector2(0, 0));
+            } else
+            {
+                target.overrideSprite = NoProfileImage;
+            }
+        }
+    }
+
+    public void GetUserImage(string user, Image target)
+    {
+        StartCoroutine(GetUserImageCoroutine(user, target));
+        //return ExampleImage;
     }
 
     private IEnumerator GetMailingListsCoroutine(ListsReadyCallback success, NoConnectionCallback noConnection)
@@ -441,7 +468,7 @@ public class UserManager : MonoBehaviour
             CurrentUser = logindata.user._id;
             CurrentUserName = logindata.user.username;
             CurrentUserClass = logindata.user.profile.role + " " + logindata.user.profile.group;
-            CurrentUserImage = GetUserImage(CurrentUserName);
+            //CurrentUserImage = GetUserImage(CurrentUserName);
             CurrentUserBalance = logindata.user.profile.balance.ToString();
             CurrentUserRole = logindata.user.profile.role;
             m_UserToken = logindata.token;
@@ -507,7 +534,7 @@ public class UserManager : MonoBehaviour
         return System.Net.Dns.GetHostEntry(hostName).AddressList[0].ToString();
         } catch (Exception e)
         {
-            return "Unknown terminal";
+            return "Unknown terminal: " + e.Message;
         }
     }
 

@@ -24,21 +24,6 @@ public struct News
     public string body;
     public string title;
     public string createdAt;
-
-    public System.DateTime GetTimeStamp()
-    {
-        System.DateTime result;
-        if (createdAt != null)
-        {
-            if (System.DateTime.TryParseExact(createdAt, "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out result))
-            {
-                return result;
-            }
-        }
-
-        Debug.Log("Error: Can't parse date");
-        return System.DateTime.Now;
-    }
 }
 
 public class NewsManager : MonoBehaviour
@@ -91,7 +76,7 @@ public class NewsManager : MonoBehaviour
             {
                 m_CachedNews.Add(n);
             }
-            m_CachedNews.Sort((t1, t2) => { return t2.GetTimeStamp().CompareTo(t1.GetTimeStamp()); });
+            m_CachedNews.Sort((t1, t2) => { return MessageManager.ParseTimeStamp(t2.createdAt).CompareTo(MessageManager.ParseTimeStamp(t1.createdAt)); });
 
             if ( success != null) success(m_CachedNews);
         }

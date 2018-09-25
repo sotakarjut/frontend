@@ -151,7 +151,7 @@ public class InboxScreen : UIScreen
         }
 
         //m_MessageManager.MarkAsRead(threadMessages[0].id);
-        threadMessages.Sort((m1, m2) => { return m2.GetTimeStamp().CompareTo(m1.GetTimeStamp()); });
+        threadMessages.Sort((m1, m2) => { return MessageManager.ParseTimeStamp(m2.createdAt).CompareTo(MessageManager.ParseTimeStamp(m1.createdAt)); });
 
         int i = 0;
         for (; i < threadMessages.Count; ++i)
@@ -229,8 +229,6 @@ public class InboxScreen : UIScreen
 
     private bool CheckThreadVisibility(string root, MessageManager.ThreadStructure threads, InboxMode mode)
     {
-        bool otherSenderFound = false;
-        
         do
         {
             MessageInfo m = m_MessageManager.GetMessage(root);
@@ -260,16 +258,17 @@ public class InboxScreen : UIScreen
         System.DateTime result;
         //return System.DateTime.Today;
 
-        result = m_MessageManager.GetMessage(root).GetTimeStamp();
+        result = MessageManager.ParseTimeStamp(m_MessageManager.GetMessage(root).createdAt);
         if (threads.m_Next.ContainsKey(root))
         {
             root = threads.m_Next[root];
             do
             {
                 MessageInfo m = m_MessageManager.GetMessage(root);
-                if (m.GetTimeStamp() > result)
+                System.DateTime stamp = MessageManager.ParseTimeStamp(m.createdAt);
+                if ( stamp > result)
                 {
-                    result = m.GetTimeStamp();
+                    result = stamp;
                 }
                 if (threads.m_Next.ContainsKey(root))
                 {
@@ -354,7 +353,8 @@ public class InboxScreen : UIScreen
             string message = visibleThreadRoots[i];
             string partner = GetLastThreadPartner(threads, message);
             MessageInfo m = m_MessageManager.GetMessage(message);
-            instance.SetData(m, GetThreadTimestamp(message, threads), m_UserManager.GetUserRealName(partner), m_UserManager.GetUserImage(partner), this, CountThreadLength(threads, message));
+            instance.SetData(m, GetThreadTimestamp(message, threads), m_UserManager.GetUserRealName(partner), this, CountThreadLength(threads, message));
+            m_UserManager.GetUserImage(partner, instance.m_SenderImage);
             instance.gameObject.SetActive(true);
 
             ++index;

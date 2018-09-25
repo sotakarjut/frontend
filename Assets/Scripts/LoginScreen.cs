@@ -9,6 +9,7 @@ public class LoginScreen : UIScreen
 {
     public UIManager m_Manager;
     public UserManager m_UserManager;
+    public MessageManager m_MessageManager;
 
     public UIMenu m_TopMenu;
     public UIScreen m_InitialScreen;
@@ -20,8 +21,13 @@ public class LoginScreen : UIScreen
     public Text m_InvalidLogin;
     public Text m_NoConnection;
 
+    public Text m_LatestText;
+
     public InputField m_ID;
     public InputField m_PIN;
+
+    private IEnumerator m_LatestRefresher;
+    private bool m_UsersReceived;
 
     private void Start()
     {
@@ -63,6 +69,45 @@ public class LoginScreen : UIScreen
         m_LoginButtonText.color = new Color(.5f, .5f, .5f);
 
         m_UserManager.GetUsers(UsersReceived, UsersFailed);
+
+        m_LatestRefresher = UpdateLatestCoroutine();
+        StartCoroutine(m_LatestRefresher);
+    }
+
+    public override void Hide()
+    {
+        if (m_LatestRefresher != null)
+        {
+            StopCoroutine(m_LatestRefresher);
+        }
+        base.Hide();
+    }
+
+    private IEnumerator UpdateLatestCoroutine()
+    {
+        while (!m_UsersReceived)
+        {
+            Debug.Log("Waiting for users");
+            yield return new WaitForSeconds(0.3f);
+        }
+
+        while (true)
+        {
+            Debug.Log("Getting latest...");
+            m_MessageManager.GetLatest(LatestReceived, null);
+            yield return new WaitForSeconds(10);
+        }
+    }
+
+    private void LatestReceived(List<LatestInfo> latest)
+    {
+        string result = "";
+        for (int i = 0; i < latest.Count; ++i)
+        {
+            result += m_UserManager.GetUserRealName(latest[i].recipient._id) + " " + MessageManager.GetTimeSince(MessageManager.ParseTimeStamp(latest[i].createdAt)) + "\n";
+            //Debug.Log(latest[i].createdAt + " to " + latest[i].recipient.username);
+        }
+        m_LatestText.text = result;
     }
 
     private void UsersFailed()
@@ -85,6 +130,8 @@ public class LoginScreen : UIScreen
         m_NoConnection.gameObject.SetActive(false);
         m_LoginButton.interactable = true;
         m_LoginButtonText.color = new Color(1f,1f,1f);
+
+        m_UsersReceived = true;
     }
 
     public void LoginSuccessful()
