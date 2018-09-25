@@ -15,10 +15,7 @@ public class UserManager : MonoBehaviour
     public string CurrentUserRole { get; private set; }
     public string CurrentHackedUser { get { return m_HackedUser; } }
 
-    public string ExampleClass;
     public Sprite ExampleImage;
-    public string ExampleBalance;
-    public List<string> ExampleUsers;
 
     public UIManager m_Manager;
 
@@ -507,7 +504,7 @@ public class UserManager : MonoBehaviour
         return System.Net.Dns.GetHostEntry(hostName).AddressList[0].ToString();
         } catch (Exception e)
         {
-            return "Unknown terminal";
+            return "Unknown terminal: " + e.Message;
         }
     }
 

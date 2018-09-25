@@ -229,8 +229,6 @@ public class InboxScreen : UIScreen
 
     private bool CheckThreadVisibility(string root, MessageManager.ThreadStructure threads, InboxMode mode)
     {
-        bool otherSenderFound = false;
-        
         do
         {
             MessageInfo m = m_MessageManager.GetMessage(root);
