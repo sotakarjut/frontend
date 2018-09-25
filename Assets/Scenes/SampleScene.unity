@@ -343,6 +343,10 @@ Prefab:
       propertyPath: m_UserManager
       value: 
       objectReference: {fileID: 98166323}
+    - target: {fileID: 1285910761767452, guid: 6af783733a590ea4497bcbb0892fdb0b, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6af783733a590ea4497bcbb0892fdb0b, type: 2}
   m_IsPrefabAsset: 0
@@ -464,6 +468,11 @@ Prefab:
       propertyPath: m_UserManager
       value: 
       objectReference: {fileID: 98166323}
+    - target: {fileID: 114737598787035150, guid: b51ef4e255087b141b82951dee89ebe3,
+        type: 2}
+      propertyPath: m_MessageManager
+      value: 
+      objectReference: {fileID: 2055760667}
     - target: {fileID: 114737598787035150, guid: b51ef4e255087b141b82951dee89ebe3,
         type: 2}
       propertyPath: m_TopMenu
@@ -1135,6 +1144,10 @@ Prefab:
       propertyPath: m_NewMessageScreen
       value: 
       objectReference: {fileID: 466498961}
+    - target: {fileID: 1762671118672672, guid: 4b66caa760d64774582a960b759cf594, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4b66caa760d64774582a960b759cf594, type: 2}
   m_IsPrefabAsset: 0

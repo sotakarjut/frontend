@@ -254,7 +254,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!1 &1523942196872140
 GameObject:
   m_ObjectHideFlags: 1
@@ -855,6 +855,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Manager: {fileID: 0}
   m_UserManager: {fileID: 0}
+  m_MessageManager: {fileID: 0}
   m_TopMenu: {fileID: 0}
   m_InitialScreen: {fileID: 0}
   m_InitialImpersonatorScreen: {fileID: 0}
@@ -862,6 +863,7 @@ MonoBehaviour:
   m_LoginButtonText: {fileID: 114654724639547098}
   m_InvalidLogin: {fileID: 114833909987072954}
   m_NoConnection: {fileID: 114319837820364302}
+  m_LatestText: {fileID: 114886096102243150}
   m_ID: {fileID: 114749828325507558}
   m_PIN: {fileID: 114885178102907460}
 --- !u!114 &114749828325507558
