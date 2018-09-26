@@ -1,9 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Net.Sockets;
 using UnityEngine;
 using UnityEngine.Networking;
+using System.Net.NetworkInformation;
 using Newtonsoft.Json;
 using System;
+using System.IO;
 using UnityEngine.UI;
 
 public class UserManager : MonoBehaviour
@@ -24,6 +27,8 @@ public class UserManager : MonoBehaviour
     public delegate void UsersReceivedCallback(List<string> users);
     public delegate void UserProfileReceivedCallback(UserProfile userinfo);
     public delegate void ListsReadyCallback();
+
+
     public delegate void LoginSuccessfulCallback();
     public delegate void LoginFailedCallback();
     public delegate void NoConnectionCallback();
@@ -40,6 +45,7 @@ public class UserManager : MonoBehaviour
 
     private string m_UserToken;
     private string m_HackedUser;
+    private string m_TerminalName;
 
     [System.Serializable]
     public struct UserInfo
@@ -84,8 +90,29 @@ public class UserManager : MonoBehaviour
         public string name;
     }
 
+    [Serializable]
+    public struct ConfigData
+    {
+        public string terminalName;
+    }
+
     void Start ()
     {
+        string configPath = Path.Combine(Application.streamingAssetsPath, "config.json");
+        string name;
+        if ( File.Exists(configPath) )
+        {
+            string rawdata = File.ReadAllText(configPath);
+            ConfigData data = JsonUtility.FromJson<ConfigData>(rawdata);
+            name = data.terminalName;
+        } else
+        {
+            name = "Unknown";
+        }
+        string mac = GetMAC();
+
+        m_TerminalName = " { \"terminal\" : { \"mac\" : \"" + mac + "\", \"name\" : \"" + name + "\" } }";
+        Debug.Log("Terminal name " + m_TerminalName);
 	}
 
     private IEnumerator GetUserImageCoroutine(string user, Image target)
@@ -282,6 +309,12 @@ public class UserManager : MonoBehaviour
                 m_CachedRoles.Add(r._id, r);
             }
         }
+    }
+
+    public int GetCurrentUserHackerLevel()
+    {
+        string role = m_CachedUsers[CurrentUser].profile.role;
+        return m_CachedRoles[role].hackerLevel;
     }
 
     public bool CanCurrentUserHack()
@@ -525,16 +558,41 @@ public class UserManager : MonoBehaviour
         CurrentUserName = null;
     }
 
-    private string GetIP()
+    private string GetMAC()
     {
         try
         {
+            IPGlobalProperties computerProperties = IPGlobalProperties.GetIPGlobalProperties();
+            NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
 
-        string hostName = System.Net.Dns.GetHostName();
-        return System.Net.Dns.GetHostEntry(hostName).AddressList[0].ToString();
+            foreach (NetworkInterface adapter in nics)
+            {
+                if (adapter.NetworkInterfaceType == NetworkInterfaceType.Ethernet && adapter.OperationalStatus == OperationalStatus.Up)
+                {
+                    PhysicalAddress address = adapter.GetPhysicalAddress();
+                    byte[] bytes = address.GetAddressBytes();
+                    string mac = null;
+                    for (int i = 0; i < bytes.Length; i++)
+                    {
+                        mac = string.Concat(mac + (string.Format("{0}", bytes[i].ToString("X2"))));
+                        if (i != bytes.Length - 1)
+                        {
+                            mac = string.Concat(mac + "-");
+                        }
+                    }
+                    Debug.Log(mac);
+                    return mac;
+                }
+            }
+
+            Debug.LogWarning("Cannot find active ethernet for MAC");
+            return "Unknown";
+            //string hostName = System.Net.Dns.GetHostName();
+            //return System.Net.Dns.GetHostEntry(hostName).AddressList[0].ToString();
         } catch (Exception e)
         {
-            return "Unknown terminal: " + e.Message;
+            Debug.LogWarning("Cannot get MAC: " + e.Message);
+            return "Unknown";
         }
     }
 
@@ -547,7 +605,7 @@ public class UserManager : MonoBehaviour
     {
         WWWForm form = new WWWForm();
         form.AddField("targetId", target);
-        form.AddField("terminalId", GetIP() );
+        form.AddField("terminalId", m_TerminalName );
 
         UnityWebRequest request = UnityWebRequest.Post(Constants.serverAddress + "/api/hack/intiate", form);
         SetCurrentUserAuthorization(request);

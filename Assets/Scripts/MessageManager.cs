@@ -162,9 +162,9 @@ public class MessageManager : MonoBehaviour
     public IEnumerator SendMessageCoroutine(MessageInfo m, MessageSentCallback success, MessageSendingError failure, NoConnectionCallback noconnection )
     {
         WWWForm form = new WWWForm();
+        form.AddField("recipientId", m.recipient);
         form.AddField("title", m.title);
         form.AddField("messageBody", m.body);
-        form.AddField("recipientId", m.recipient);
         if (m.replyTo != null)
         {
             form.AddField("replyTo", m.replyTo);
@@ -213,7 +213,7 @@ public class MessageManager : MonoBehaviour
         {
             if (request.responseCode == 400)
             {
-                Debug.Log("Http error: Message data missing: " + request.error + ", Code = " + request.responseCode);
+                Debug.Log("Http error: Message data missing: " + request.error + ", Code = " + request.responseCode + " " + request.downloadHandler.text);
             }
             else if (request.responseCode == 404)
             {

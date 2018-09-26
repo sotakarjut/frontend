@@ -79,7 +79,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1376005303901254
 GameObject:
   m_ObjectHideFlags: 1
@@ -1388,6 +1388,12 @@ MonoBehaviour:
   m_ProfileImage: {fileID: 114720364630476764}
   m_BalanceText: {fileID: 114930065792834364}
   m_HackButton: {fileID: 1037649653126808}
+  m_NewMessageButton: {fileID: 114114864410181322}
+  m_NewMessageButton2: {fileID: 114354401295683862}
+  m_NewMessageButtonImage: {fileID: 114485404024758612}
+  m_NewMessageText: {fileID: 114167851095703980}
+  m_ReplyButton: {fileID: 0}
+  m_ReplyButtonText: {fileID: 0}
 --- !u!114 &114795135495894806
 MonoBehaviour:
   m_ObjectHideFlags: 1
