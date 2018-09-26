@@ -2,12 +2,15 @@
 
 Frontend project for the Sotakarjut larp communication application.
 
+## Configuring terminal name
+
+* In a windows build the terminal name can be configured from "Sotakarjut frontend_Data/StreamingAssets/config.json".
+
 ## Getting Started
 
-* If you only want to test the last build, try http://iki.fi/dae/sotakarjut/
 * Download and install Unity 3D version 2018.2.0f2 from https://unity3d.com/get-unity/download
 * Download and open the project in Unity
-* The scene SampleScene contains a Canvas object with the UI elements with the UI logic in script components. There are also some separate game objects with manager stubs that will communicate with the backend at some point in the future.
+* The scene SampleScene contains a Canvas object with the UI elements with the UI logic in script components. There are also some separate game objects with managers that communicate with the backend.
 
 ## Built With
 
