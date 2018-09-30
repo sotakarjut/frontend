@@ -2,7 +2,6 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Text.RegularExpressions;
 
 public class HackScreen : UIScreen
 {
@@ -41,30 +40,22 @@ public class HackScreen : UIScreen
         m_ShowPlayersToggle.gameObject.SetActive( m_UserManager.CanCurrentUserImpersonate() );
 
         RepopulateTargets();
-        //m_UserManager.GetUsers(UsersReceived, NoConnection);
     }
 
     private void NoConnection()
     {
+        m_Manager.ShowNoConnection();
+        m_Manager.Logout();
     }
-
-    /*
-    private void UsersReceived(List<string> users)
-    {
-        //m_HackTargetDropdown.ClearOptions();
-        //m_HackTargetDropdown.AddOptions(users);
-    }*/
 
     public void OnHack()
     {
         if (m_HackTargetDropdown.options.Count > 0)
         {
-
             int targetIndex = m_HackTargetDropdown.value;
-            //m_HackTarget = m_UserManager.GetUserByIndex(targetIndex);
             m_HackTarget = m_CachedTargets[targetIndex];
 
-            Debug.Log("starting hack for " + m_HackTarget);
+            //Debug.Log("starting hack for " + m_HackTarget);
             m_UserManager.Hack(m_HackTarget, Hacked, HackFailed, NoConnection);
         }
     }
@@ -132,7 +123,7 @@ public class HackScreen : UIScreen
         m_HackTargetDropdown.interactable = true;
         m_HackTargetDropdown.gameObject.SetActive(true);
 
-        m_HackButton.interactable = true;
+        m_HackButton.interactable = m_CachedTargets.Count > 0;
         m_HackButton.gameObject.SetActive(true);
     }
 
