@@ -19,17 +19,9 @@ public class NewMessageScreen : UIScreen
     private string m_ReplyID;
     private int m_FirstListIndex;
 
-	void Start ()
-    {
-	}
-
     public override void Show()
     {
         base.Show();
-
-        //List<string> users = m_UserManager.GetUsers();
-        //m_ReceiverDropdown.ClearOptions();
-        //m_ReceiverDropdown.AddOptions(users);
 
         m_TopicField.text = "";
         m_ReceiverDropdown.value = 0;
@@ -44,44 +36,42 @@ public class NewMessageScreen : UIScreen
 
     private void NoConnection()
     {
-        //m_UserManager.NoConnection();
-
-        // TODO: this is for testing without backend
-        m_ReceiverDropdown.ClearOptions();
-        List<string> users = new List<string>();
-        users.Add("NoConnectionUser");
-        users.Add("GetABackendUser");
-        m_ReceiverDropdown.AddOptions(users);
-        m_ReceiverDropdown.interactable = true;
-        m_SendButton.interactable = true;
+        m_Manager.ShowNoConnection();
+        m_Manager.Logout();
     }
 
     private void UsersReceived(List<string> users)
     {
-        List<string> filtered = new List<string>();
-        for (int i = 0; i < users.Count; ++i)
+        if (users != null)
         {
-            string userid = m_UserManager.GetUserIdByName(users[i]);
-            if ( !m_UserManager.CanImpersonate(userid) )
+            List<string> filtered = new List<string>();
+            for (int i = 0; i < users.Count; ++i)
             {
-                filtered.Add(users[i]);
+                string userid = m_UserManager.GetUserIdByName(users[i]);
+                if (!m_UserManager.CanImpersonate(userid))
+                {
+                    filtered.Add(users[i]);
+                }
             }
-        }
 
-        m_FirstListIndex = filtered.Count;
-        List<string> lists = m_UserManager.GetMailingListNames();
-        if (lists != null)
+            m_FirstListIndex = filtered.Count;
+            List<string> lists = m_UserManager.GetMailingListNames();
+            if (lists != null)
+            {
+                for (int i = 0; i < lists.Count; ++i)
+                {
+                    filtered.Add(lists[i]);
+                }
+            }
+
+            m_ReceiverDropdown.ClearOptions();
+            m_ReceiverDropdown.AddOptions(filtered);
+            m_ReceiverDropdown.interactable = true;
+            m_SendButton.interactable = true;
+        } else
         {
-            for (int i = 0; i < lists.Count; ++i)
-            {
-                filtered.Add(lists[i]);
-            }
+            NoConnection();
         }
-
-        m_ReceiverDropdown.ClearOptions();
-        m_ReceiverDropdown.AddOptions(filtered);
-        m_ReceiverDropdown.interactable = true;
-        m_SendButton.interactable = true;
     }
 
     public void SetReplyData(string id)
@@ -90,12 +80,19 @@ public class NewMessageScreen : UIScreen
         {
             MessageInfo m = m_MessageManager.GetMessage(id);
 
-            if (!m.title.StartsWith("Re:"))
+            if (m.title != null)
             {
-                m_TopicField.text = "Re: " + m.title;
+                if (!m.title.StartsWith("Re:"))
+                {
+                    m_TopicField.text = "Re: " + m.title;
+                }
+                else
+                {
+                    m_TopicField.text = m.title;
+                }
             } else
             {
-                m_TopicField.text = m.title;
+                m_TopicField.text = "";
             }
 
             m_Message.text = Regex.Replace(m.body, "^", ">", RegexOptions.Multiline);
@@ -122,7 +119,7 @@ public class NewMessageScreen : UIScreen
 
     private void MessageSendFailure()
     {
-        Debug.Log("Message sending failed");
+        Debug.LogError("Error: Message sending failed");
     }
 
     public void OnSend()
@@ -132,8 +129,6 @@ public class NewMessageScreen : UIScreen
 
         MessageInfo m = new MessageInfo();
         m.replyTo = m_ReplyID;
-        //m.sender = m_UserManager.CurrentUserName;
-        //m.timestamp = System.DateTime.Now;
         m.title = topic;
         if (m_ReceiverDropdown.value < m_FirstListIndex)
         {
@@ -144,7 +139,7 @@ public class NewMessageScreen : UIScreen
         }
 
         m.body = message;
-        Debug.Log("Sending message to user " + m.recipient + ". Topic = " + topic + "\nMessage = \n" + message);
+        //Debug.Log("Sending message to user " + m.recipient + ". Topic = " + topic + "\nMessage = \n" + message);
         m_MessageManager.SendMessage(m, MessageSent, MessageSendFailure, NoConnection);
 
         m_TopicField.text = "";

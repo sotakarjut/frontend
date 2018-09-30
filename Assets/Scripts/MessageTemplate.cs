@@ -5,25 +5,18 @@ using UnityEngine.UI;
 
 public class MessageTemplate : MonoBehaviour
 {
-    //public Image m_SenderImage;
     public Text m_SenderText;
     public Text m_ReceiverText;
     public Text m_TopicText;
     public Text m_TimeStampText;
     public Text m_MessageText;
 
-	void Start ()
-    {
-		
-	}
-
     public void SetData(MessageInfo m, string title, string sender, string recipient, string body)
     {
-        m_TopicText.text = title;
-        m_SenderText.text = "Lähettäjä: " + sender;
-        m_ReceiverText.text = "Vastaanottaja: " + recipient;
+        m_TopicText.text = title != null && title.Length > 0 ? title : "(Ei otsikkoa)";
+        m_SenderText.text = "Lähettäjä: " + (sender != null ? sender : "Tuntematon");
+        m_ReceiverText.text = "Vastaanottaja: " + (recipient != null ? recipient : "Tuntematon");
         m_TimeStampText.text = MessageManager.GetTimeSince( MessageManager.ParseTimeStamp(m.createdAt) );
-        //m_TimeStampText.text = m.GetTimeStamp().ToString("d.M.yyyy H:mm");
-        m_MessageText.text = body;
+        m_MessageText.text = body != null ? body : "(Ei viestiä)";
     }
 }

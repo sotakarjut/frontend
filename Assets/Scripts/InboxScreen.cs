@@ -191,7 +191,10 @@ public class InboxScreen : UIScreen
         m_LastActiveMessage = threadMessages.Count - 1;
 
         m_ReplyButton.onClick.RemoveAllListeners();
-        m_ReplyButton.onClick.AddListener(delegate { Reply(threadMessages[threadMessages.Count-1]._id); });
+        if (threadMessages != null && threadMessages.Count > 0)
+        {
+            m_ReplyButton.onClick.AddListener(delegate { Reply(threadMessages[0]._id); });
+        }
 
         m_MessagePanel.gameObject.SetActive(true);
     }
