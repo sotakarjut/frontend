@@ -4,6 +4,8 @@ using UnityEngine.UI;
 public class TopMenu : UIMenu
 {
     public UserManager m_UserManager;
+    public UIManager m_UIManager;
+
     public Text m_NameText;
     public Text m_TitleText;
     public Text m_GroupText;
@@ -18,17 +20,12 @@ public class TopMenu : UIMenu
     public Button m_ReplyButton;
     public Text m_ReplyButtonText;
 
-    void Start ()
-    {
-	}
-
     private void UserInfoReceived(UserManager.UserProfile profile)
     {
-        m_NameText.text = profile.name;
-        m_TitleText.text = profile.title;
-        m_GroupText.text = profile.group;
-        //m_ProfileImage.sprite = m_UserManager.CurrentUserImage; // TODO
-        m_BalanceText.text = "BALANCE: " + profile.balance;
+        m_NameText.text = profile.name != null ? profile.name : "Tuntematon";
+        m_TitleText.text = profile.title != null ? profile.title : "";
+        m_GroupText.text = profile.group != null ? profile.group : "";
+        m_BalanceText.text = "Varat: " + profile.balance.ToString();
 
         m_NewMessageButton.interactable = true;
         m_NewMessageButton2.interactable = true;
@@ -39,7 +36,7 @@ public class TopMenu : UIMenu
 
         if ( m_UserManager.CurrentHackedUser != null )
         {
-            m_NameText.text += " (hacked)";
+            m_NameText.text += " (hakkeroitu)";
 
             if ( m_UserManager.GetCurrentUserHackerLevel() < 3)
             {
@@ -62,18 +59,8 @@ public class TopMenu : UIMenu
 
     private void NoConnection()
     {
-        //m_UserManager.NoConnection();
-
-        /*
-        // TODO: this is for testing without backend
-        m_NameText.text = "No connection name";
-        m_TitleText.text = "Worker";
-        m_GroupText.text = "Without connection";
-        m_ProfileImage.sprite = m_UserManager.CurrentUserImage; // TODO
-        m_BalanceText.text = "BALANCE: " + 1234;
-        */
-
-        base.Show();
+        m_UIManager.ShowNoConnection();
+        m_UIManager.Logout();
     }
 
     public override void Show()

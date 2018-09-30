@@ -64,13 +64,43 @@ public class InboxScreen : UIScreen
 
         m_LastActiveMessage = -1;
         m_LastActiveMessageHeader = -1;
-
     }
 
     public override void Show()
     {
         base.Show();
         ShowInbox();
+    }
+
+    public override void OnLogout()
+    {
+        base.OnLogout();
+
+        // Remove all messagse so the next user has no chance of seeing them while their own are loading
+
+        for (int i = 0; i <= m_LastActiveMessage; ++i)
+        {
+            if (i > 0)
+            {
+                m_MessageSeparators[i - 1].gameObject.SetActive(false);
+            }
+
+            m_MessageInstances[i].gameObject.SetActive(false);
+        }
+
+        m_LastActiveMessage = -1;
+
+        for (int index = 0; index <= m_LastActiveMessageHeader; ++index)
+        {
+            if (index > 0 && index <= m_LastActiveMessageHeader)
+            {
+                m_MessageHeaderSeparators[index - 1].gameObject.SetActive(false);
+            }
+
+            m_MessageHeaderInstances[index].gameObject.SetActive(false);
+        }
+
+        m_LastActiveMessageHeader = -1;
     }
 
     public void ShowInbox()
@@ -104,17 +134,18 @@ public class InboxScreen : UIScreen
 
     private void NoConnection()
     {
-
+        m_UIManager.ShowNoConnection();
+        m_UIManager.Logout();
     }
 
     private void MessagesFailed()
     {
-
+        m_UIManager.ShowNoConnection();
+        m_UIManager.Logout();
     }
 
     private void ShowMessageReceived(string id)
     { 
-        //List<MessageInfo> showM = new List<MessageInfo>();
         MessageManager.ThreadStructure threads = m_MessageManager.GetThreads();
 
         // find thread root
@@ -150,7 +181,6 @@ public class InboxScreen : UIScreen
             Debug.LogError("Inifinite loop in a thread starting from message " + id);
         }
 
-        //m_MessageManager.MarkAsRead(threadMessages[0].id);
         threadMessages.Sort((m1, m2) => { return MessageManager.ParseTimeStamp(m2.createdAt).CompareTo(MessageManager.ParseTimeStamp(m1.createdAt)); });
 
         int i = 0;
@@ -192,7 +222,10 @@ public class InboxScreen : UIScreen
         m_LastActiveMessage = threadMessages.Count - 1;
 
         m_ReplyButton.onClick.RemoveAllListeners();
-        m_ReplyButton.onClick.AddListener(delegate { Reply(threadMessages[threadMessages.Count-1]._id); });
+        if (threadMessages != null && threadMessages.Count > 0)
+        {
+            m_ReplyButton.onClick.AddListener(delegate { Reply(threadMessages[0]._id); });
+        }
 
         m_MessagePanel.gameObject.SetActive(true);
     }
@@ -229,26 +262,28 @@ public class InboxScreen : UIScreen
 
     private bool CheckThreadVisibility(string root, MessageManager.ThreadStructure threads, InboxMode mode)
     {
+        int loops = 0;
         do
         {
             MessageInfo m = m_MessageManager.GetMessage(root);
-            if ( mode == InboxMode.Sent && m.sender.username == m_UserManager.GetUserName(m_MessageManager.GetUserToShow()) )
+            if ( mode == InboxMode.Sent && m.sender.username != null && m.sender.username.Equals( m_UserManager.GetUserName(m_MessageManager.GetUserToShow()) ) )
             {
                 return true;
             }
-            if ( mode == InboxMode.Received && m.recipient == m_MessageManager.GetUserToShow())
+            if ( mode == InboxMode.Received && m.recipient != null && m.recipient.Equals(m_MessageManager.GetUserToShow()) )
             {
                 return true;
             }
 
             if (threads.m_Next.ContainsKey(root))
             {
+                ++loops;
                 root = threads.m_Next[root];
             } else
             {
                 break;
             }
-        } while (true);
+        } while (loops < 10000);
 
         return false;
     }
@@ -256,12 +291,12 @@ public class InboxScreen : UIScreen
     private System.DateTime GetThreadTimestamp(string root, MessageManager.ThreadStructure threads)
     {
         System.DateTime result;
-        //return System.DateTime.Today;
-
         result = MessageManager.ParseTimeStamp(m_MessageManager.GetMessage(root).createdAt);
+
         if (threads.m_Next.ContainsKey(root))
         {
             root = threads.m_Next[root];
+            int loops = 0;
             do
             {
                 MessageInfo m = m_MessageManager.GetMessage(root);
@@ -272,6 +307,7 @@ public class InboxScreen : UIScreen
                 }
                 if (threads.m_Next.ContainsKey(root))
                 {
+                    ++loops;
                     root = threads.m_Next[root];
                 }
                 else
@@ -279,20 +315,22 @@ public class InboxScreen : UIScreen
                     break;
                 }
             }
-            while (true);
+            while (loops < 10000);
         }
         return result;
     }
 
     private string GetLastThreadPartner(MessageManager.ThreadStructure threads, string message)
     {
-        while ( threads.m_Next.ContainsKey(message) )
+        int loops = 0;
+        while ( loops < 10000 && threads.m_Next.ContainsKey(message) )
         {
+            ++loops;
             message = threads.m_Next[message];
         }
 
         MessageInfo m = m_MessageManager.GetMessage(message);
-        if ( m.sender.username != m_UserManager.GetUserName(m_MessageManager.GetUserToShow()))
+        if ( m.sender.username != null && !m.sender.username.Equals(m_UserManager.GetUserName(m_MessageManager.GetUserToShow())))
         {
             return m.sender._id;
         } else

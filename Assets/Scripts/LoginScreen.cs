@@ -87,31 +87,41 @@ public class LoginScreen : UIScreen
     {
         while (!m_UsersReceived)
         {
-            Debug.Log("Waiting for users");
-            yield return new WaitForSeconds(0.3f);
+            //Debug.Log("Waiting for users");
+            yield return new WaitForSeconds(1f);
         }
 
         while (true)
         {
             Debug.Log("Getting latest...");
             m_MessageManager.GetLatest(LatestReceived, null);
-            yield return new WaitForSeconds(10);
+            yield return new WaitForSeconds(60);
         }
     }
 
     private void LatestReceived(List<LatestInfo> latest)
     {
-        string result = "";
-        for (int i = 0; i < latest.Count; ++i)
+        if (latest != null)
         {
-            result += m_UserManager.GetUserRealName(latest[i].recipient._id) + " " + MessageManager.GetTimeSince(MessageManager.ParseTimeStamp(latest[i].createdAt)) + "\n";
-            //Debug.Log(latest[i].createdAt + " to " + latest[i].recipient.username);
+            string result = "";
+            for (int i = 0; i < latest.Count; ++i)
+            {
+                string realname = m_UserManager.GetUserRealName(latest[i].recipient._id);
+
+                result += (realname != null ? realname : "Tuntematon käyttäjä") + " " + 
+                    MessageManager.GetTimeSince(MessageManager.ParseTimeStamp(latest[i].createdAt)) + "\n";
+            }
+            m_LatestText.text = result;
         }
-        m_LatestText.text = result;
+        else
+        {
+            m_LatestText.text = "";
+        }
     }
 
     private void UsersFailed()
     {
+        m_InvalidLogin.gameObject.SetActive(false);
         m_NoConnection.gameObject.SetActive(true);
         m_LoginButton.interactable = false;
         m_LoginButtonText.color = new Color(.5f, .5f, .5f);
@@ -120,7 +130,7 @@ public class LoginScreen : UIScreen
 
     private IEnumerator RetryUsers()
     {
-        yield return new WaitForSeconds(10f);
+        yield return new WaitForSeconds(20f);
 
         m_UserManager.GetUsers(UsersReceived, UsersFailed);
     }
@@ -166,7 +176,9 @@ public class LoginScreen : UIScreen
         m_NoConnection.gameObject.SetActive(true);
         m_LoginButton.interactable = false;
         m_LoginButtonText.color = new Color(.5f, .5f, .5f);
-        // TODO: test for connection
+        
+        // TODO: should actually test for connection
+        StartCoroutine(RetryUsers());
     }
 
     public void OnLogin()
@@ -179,8 +191,7 @@ public class LoginScreen : UIScreen
         }
         else if ( m_Manager )
         {
-            Debug.Log("Logging in " + m_ID.text + " with PIN " + m_PIN.text);
-
+            //Debug.Log("Logging in " + m_ID.text + " with PIN " + m_PIN.text);
             m_UserManager.Login(m_ID.text, m_PIN.text, LoginSuccessful, LoginFailed, NoConnection);
         }
     }

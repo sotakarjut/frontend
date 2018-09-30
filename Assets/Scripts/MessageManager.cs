@@ -5,24 +5,9 @@ using UnityEngine.Networking;
 using Newtonsoft.Json;
 using System;
 
-/*
-[System.Serializable]
-public struct Message
-{
-    public string _id;
-    public string replyTo;
-    //public string sender;
-    public string recipient;
-    public string title;
-    //public System.DateTime timestamp;
-    public string body;
-    public bool read;
-}*/
-
 [System.Serializable]
 public struct Sender
 {
-    //public UserManager.UserProfile profile;
     public string _id;
     public string username;
 }
@@ -32,12 +17,11 @@ public struct MessageInfo
 {
     public string _id;
     public string body;
-    public string recipient; // _id
+    public string recipient; // id
     public Sender sender;
     public string title;
     public string createdAt;
     public string replyTo;
-
 }
 
 [System.Serializable]
@@ -56,13 +40,21 @@ public struct LatestInfo
 
 public class MessageManager : MonoBehaviour
 {
-    //public delegate void MessagesReceivedCallback(Dictionary<string, MessageInfo> messages);
     public delegate void MessagesReceivedCallback();
     public delegate void NoConnectionCallback();
     public delegate void MessageReceivingError();
     public delegate void MessageSentCallback();
     public delegate void LatestReceivedCallback(List<LatestInfo> latest);
     public delegate void LatestFailedCallback();
+    public delegate void MessageSendingError();
+
+    public UserManager m_UserManager;
+
+    private Dictionary<string, MessageInfo> m_CachedMessages;
+    private string m_CachedMessageUser;
+    private int m_NextId;
+
+    private float m_LastRefresh;
 
     private IEnumerator GetLatestCoroutine(LatestReceivedCallback success, LatestFailedCallback failure)
     {
@@ -88,8 +80,19 @@ public class MessageManager : MonoBehaviour
         }
         else
         {
-            List<LatestInfo> latest = JsonConvert.DeserializeObject<List<LatestInfo>>(request.downloadHandler.text);
-            success(latest);
+            List<LatestInfo> latest = null;
+            try
+            {
+                latest = JsonConvert.DeserializeObject<List<LatestInfo>>(request.downloadHandler.text);
+
+            } catch (Exception)
+            {
+                Debug.LogError("Warning: cannot get latest messages.");
+            }
+            if (latest != null && success != null)
+            {
+                success(latest);
+            }
         }
     }
 
@@ -98,44 +101,18 @@ public class MessageManager : MonoBehaviour
         StartCoroutine(GetLatestCoroutine(success, failure));
     }
 
-    public delegate void MessageSendingError();
-
-    public UserManager m_UserManager;
-
-    private Dictionary<string, MessageInfo> m_CachedMessages;
-    private string m_CachedMessageUser;
-    private int m_NextId;
-
-    private float m_LastRefresh;
-
-    void Start ()
-    {
-    }
-
-    /*
-    public void MarkAsRead(int id)
-    {
-
-        int index = m_MessageCache[id];
-        Message m = m_Messages[index];
-        m.read = true;
-        m_Messages[index] = m;
-    }*/
-
     public static DateTime ParseTimeStamp(string createdAt)
     {
         System.DateTime result;
         if (createdAt != null)
         {
-            //if (System.DateTime.TryParse(createdAt, null, System.Globalization.DateTimeStyles.None, out result) )
-            //if (System.DateTime.TryParseExact(createdAt, "yyyy-mm-ddTHH:mm:ss.fff\\Z", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out result) )
             if (System.DateTime.TryParseExact(createdAt, "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out result))
             {
                 return result;
             }
         }
 
-        Debug.Log("Error: Can't parse date");
+        Debug.LogWarning("Warning: Can't parse date");
         return DateTime.Now;
     }
 
@@ -183,19 +160,7 @@ public class MessageManager : MonoBehaviour
             request = UnityWebRequest.Post(Constants.serverAddress + "api/messages", form);
         }
 
-        //Hashtable header = new Hashtable();
-        //header.Add("Content-Type", "application/json");
-
-        /*
-        string jsontest = "{ \"title\" : \"jsontit\", \"messageBody\" : \"jsonbody\", \"recipient\" : \"testi\" }";
-        byte[] formData = System.Text.Encoding.UTF8.GetBytes(jsontest);
-        UnityWebRequest request = UnityWebRequest.Post("http://localhost:3000/api/messages", new Dictionary<string, string>());
-        request.uploadHandler = new UploadHandlerRaw(formData);
-        request.SetRequestHeader("Content-Type", "application/json");
-        */
-
         m_UserManager.SetCurrentUserAuthorization(request);
-
 
         yield return request.SendWebRequest();
 
@@ -232,7 +197,6 @@ public class MessageManager : MonoBehaviour
             Debug.Log("Message sent: " + request.downloadHandler.text);
             GetMessages(true, () => { success(); }, noconnection, () => { failure(); } );
         }
-
     }
 
     public string GetUserToShow()
@@ -253,7 +217,13 @@ public class MessageManager : MonoBehaviour
 
     public MessageInfo GetMessage(string id)
     {
-        return m_CachedMessages[id];
+        if (m_CachedMessages != null && m_CachedMessages.ContainsKey(id))
+        {
+            return m_CachedMessages[id];
+        } else
+        {
+            return default(MessageInfo);
+        }
     }
 
     public IEnumerator GetMessagesCoroutine(MessagesReceivedCallback success, NoConnectionCallback noconnection, MessageReceivingError failure)
@@ -295,18 +265,31 @@ public class MessageManager : MonoBehaviour
         else if (request.responseCode == 200)
         {
             // response contains the message 
-            Debug.Log("Messages received: " + request.downloadHandler.text);
+            //Debug.Log("Messages received: " + request.downloadHandler.text);
+            Dictionary<string, MessageInfo> messageData = null;
 
-            Dictionary<string, MessageInfo> messageData = JsonConvert.DeserializeObject<Dictionary<string, MessageInfo>>(request.downloadHandler.text);
-
-            m_CachedMessages = new Dictionary<string, MessageInfo>();
-            foreach (MessageInfo m in messageData.Values)
+            try
             {
-                m_CachedMessages[m._id] = m;
+                messageData = JsonConvert.DeserializeObject<Dictionary<string, MessageInfo>>(request.downloadHandler.text);
+            } catch (Exception)
+            {
+                Debug.LogError("Error: cannot deserialize messages.");
             }
-            m_CachedMessageUser = GetUserToShow();
 
-            if ( success != null) success();
+            if (messageData != null)
+            {
+                m_CachedMessages = new Dictionary<string, MessageInfo>();
+                foreach (MessageInfo m in messageData.Values)
+                {
+                    if (m._id != null)
+                    {
+                        m_CachedMessages[m._id] = m;
+                    }
+                }
+                m_CachedMessageUser = GetUserToShow();
+
+                if (success != null) success();
+            }
         }
     }
 
