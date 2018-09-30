@@ -1,1 +1,4 @@
-{ "terminalName" : "testi" }
+{ 
+	"terminalName" : "testi",
+	"serverAddress" : "https://triton.sotakarjut.com/backend/"
+}

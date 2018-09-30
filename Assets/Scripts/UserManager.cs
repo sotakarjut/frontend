@@ -90,6 +90,7 @@ public class UserManager : MonoBehaviour
     public struct ConfigData
     {
         public string terminalName;
+        public string serverAddress;
     }
 
     void Start ()
@@ -103,6 +104,12 @@ public class UserManager : MonoBehaviour
                 string rawdata = File.ReadAllText(configPath);
                 ConfigData data = JsonUtility.FromJson<ConfigData>(rawdata);
                 name = data.terminalName;
+
+                if ( data.serverAddress != null && data.serverAddress.Length > 0 )
+                {
+                    Debug.Log("Overriding server address with [" + data.serverAddress + "]");
+                    Constants.serverAddress = data.serverAddress;
+                }
             }
             else
             {
