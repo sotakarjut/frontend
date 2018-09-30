@@ -72,6 +72,37 @@ public class InboxScreen : UIScreen
         ShowInbox();
     }
 
+    public override void OnLogout()
+    {
+        base.OnLogout();
+
+        // Remove all messagse so the next user has no chance of seeing them while their own are loading
+
+        for (int i = 0; i <= m_LastActiveMessage; ++i)
+        {
+            if (i > 0)
+            {
+                m_MessageSeparators[i - 1].gameObject.SetActive(false);
+            }
+
+            m_MessageInstances[i].gameObject.SetActive(false);
+        }
+
+        m_LastActiveMessage = -1;
+
+        for (int index = 0; index <= m_LastActiveMessageHeader; ++index)
+        {
+            if (index > 0 && index <= m_LastActiveMessageHeader)
+            {
+                m_MessageHeaderSeparators[index - 1].gameObject.SetActive(false);
+            }
+
+            m_MessageHeaderInstances[index].gameObject.SetActive(false);
+        }
+
+        m_LastActiveMessageHeader = -1;
+    }
+
     public void ShowInbox()
     {
         m_MessagePanel.gameObject.SetActive(false);

@@ -1117,9 +1117,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1.57
-  m_Text: 'Hahmo A - 5 minuuttia sitten
-
-    Hahmo b - 15 minuuttia sitten'
+  m_Text: Ladataan tietoja...
 --- !u!114 &114887267057125434
 MonoBehaviour:
   m_ObjectHideFlags: 1

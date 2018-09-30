@@ -353,6 +353,11 @@ Prefab:
       propertyPath: m_ReplyButtonText
       value: 
       objectReference: {fileID: 375297480}
+    - target: {fileID: 114767922644465870, guid: 6af783733a590ea4497bcbb0892fdb0b,
+        type: 2}
+      propertyPath: m_UIManager
+      value: 
+      objectReference: {fileID: 1949260609}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6af783733a590ea4497bcbb0892fdb0b, type: 2}
   m_IsPrefabAsset: 0
@@ -502,7 +507,12 @@ Prefab:
       objectReference: {fileID: 1919802988}
     - target: {fileID: 1516601988168378, guid: b51ef4e255087b141b82951dee89ebe3, type: 2}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114886096102243150, guid: b51ef4e255087b141b82951dee89ebe3,
+        type: 2}
+      propertyPath: m_Text
+      value: Ladataan tietoja...
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b51ef4e255087b141b82951dee89ebe3, type: 2}
@@ -899,6 +909,11 @@ Prefab:
       propertyPath: m_NewsManager
       value: 
       objectReference: {fileID: 2069609635}
+    - target: {fileID: 114384082165438774, guid: 88514895b4b2bee449bd1e7be84b8b72,
+        type: 2}
+      propertyPath: m_UIManager
+      value: 
+      objectReference: {fileID: 1949260609}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 88514895b4b2bee449bd1e7be84b8b72, type: 2}
   m_IsPrefabAsset: 0
@@ -1168,7 +1183,7 @@ Prefab:
       objectReference: {fileID: 466498961}
     - target: {fileID: 1762671118672672, guid: 4b66caa760d64774582a960b759cf594, type: 2}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1176915923797526, guid: 4b66caa760d64774582a960b759cf594, type: 2}
       propertyPath: m_IsActive
@@ -1200,7 +1215,7 @@ Prefab:
     - target: {fileID: 224755267762935168, guid: 4b66caa760d64774582a960b759cf594,
         type: 2}
       propertyPath: m_AnchoredPosition.y
-      value: -0.000091552734
+      value: -0.000061035156
       objectReference: {fileID: 0}
     - target: {fileID: 224755267762935168, guid: 4b66caa760d64774582a960b759cf594,
         type: 2}
@@ -1210,7 +1225,7 @@ Prefab:
     - target: {fileID: 224885122065013482, guid: 4b66caa760d64774582a960b759cf594,
         type: 2}
       propertyPath: m_AnchorMin.y
-      value: 0.000000059604645
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 114560456742734100, guid: 4b66caa760d64774582a960b759cf594,
         type: 2}

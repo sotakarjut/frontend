@@ -6,6 +6,10 @@ public class UIScreen : MonoBehaviour
     {
 	}
 
+    public virtual void OnLogout()
+    {
+    }
+
     public virtual void Show()
     {
         gameObject.SetActive(true);

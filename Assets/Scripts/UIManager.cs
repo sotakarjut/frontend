@@ -78,6 +78,12 @@ public class UIManager : MonoBehaviour
     {
         ShowMenu(null);
         ShowScreen(m_InitialScreen);
+
+        foreach (UIScreen screen in m_Screens)
+        {
+            screen.OnLogout();
+        }
+
         m_UserManager.Logout();
     }
 }
