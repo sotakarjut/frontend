@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
+using System;
 
 [System.Serializable]
 public struct Profile
@@ -67,18 +68,28 @@ public class NewsManager : MonoBehaviour
         else if (request.responseCode == 200)
         {
             // response contains the message 
-            Debug.Log("News received: " + request.downloadHandler.text);
+            //Debug.Log("News received: " + request.downloadHandler.text);
 
-            Dictionary<string, News> newsData = JsonConvert.DeserializeObject<Dictionary<string, News>>(request.downloadHandler.text);
-
-            m_CachedNews = new List<News>();
-            foreach (News n in newsData.Values)
+            Dictionary<string, News> newsData = null;
+            try
             {
-                m_CachedNews.Add(n);
+                newsData = JsonConvert.DeserializeObject<Dictionary<string, News>>(request.downloadHandler.text);
+            } catch (Exception)
+            {
+                Debug.LogWarning("warning: Cannot deserialize news.");
             }
-            m_CachedNews.Sort((t1, t2) => { return MessageManager.ParseTimeStamp(t2.createdAt).CompareTo(MessageManager.ParseTimeStamp(t1.createdAt)); });
 
-            if ( success != null) success(m_CachedNews);
+            if (newsData != null)
+            {
+                m_CachedNews = new List<News>();
+                foreach (News n in newsData.Values)
+                {
+                    m_CachedNews.Add(n);
+                }
+                m_CachedNews.Sort((t1, t2) => { return MessageManager.ParseTimeStamp(t2.createdAt).CompareTo(MessageManager.ParseTimeStamp(t1.createdAt)); });
+
+                if (success != null) success(m_CachedNews);
+            }
         }
     }
 
