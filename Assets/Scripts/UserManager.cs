@@ -201,7 +201,7 @@ public class UserManager : MonoBehaviour
 
                 foreach (var list in lists)
                 {
-                    Debug.Log(list.Value.name + ": " + list.Value._id);
+                    //Debug.Log(list.Value.name + ": " + list.Value._id);
                     m_CachedListNames.Add(list.Value.name);
                     m_CachedLists[list.Value._id] = list.Value;
                 }
@@ -624,7 +624,7 @@ public class UserManager : MonoBehaviour
 
             if (logindata.token != null)
             {
-                Debug.Log(logindata.user.username + ": " + logindata.token);
+                //Debug.Log(logindata.user.username + ": " + logindata.token);
 
                 CurrentUser = logindata.user._id;
                 CurrentUserName = logindata.user.username;
@@ -686,7 +686,7 @@ public class UserManager : MonoBehaviour
                             mac = string.Concat(mac + "-");
                         }
                     }
-                    Debug.Log(mac);
+                    //Debug.Log(mac);
                     return mac;
                 }
             }
