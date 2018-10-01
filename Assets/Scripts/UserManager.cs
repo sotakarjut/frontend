@@ -676,6 +676,7 @@ public class UserManager : MonoBehaviour
     {
         try
         {
+            IPGlobalProperties computerProperties = IPGlobalProperties.GetIPGlobalProperties();
             NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
 
             foreach (NetworkInterface adapter in nics)
