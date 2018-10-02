@@ -12,16 +12,6 @@ public class MessageHeaderTemplate : MonoBehaviour
     public Button m_OpenButton;
 
     public Text m_ThreadLengthText;
-    //public ThreadMessageTemplate m_Template;
-    //public Button m_OpenThreadButton;
-
-    //private bool m_ThreadShown;
-    
-
-	void Start ()
-    {
-        //m_SenderImage.mainTexture = new Texture2D(500, 500);
-	}
 
     private void OpenMessage(InboxScreen screen, string id)
     {
@@ -35,7 +25,6 @@ public class MessageHeaderTemplate : MonoBehaviour
 
     public void SetData(MessageInfo m, System.DateTime timestamp, string partnerName, InboxScreen screen, int threadLength)
     {
-        //m_SenderImage.sprite = senderImage;
         m_TopicText.text = "Aihe: " + (m.title != null && m.title.Length > 0 ? m.title : "(ei otsikkoa)");
         m_SenderText.text = partnerName != null ? partnerName : "Tuntematon";
 
