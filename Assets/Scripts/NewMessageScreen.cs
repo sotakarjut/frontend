@@ -64,6 +64,8 @@ public class NewMessageScreen : UIScreen
                 }
             }
 
+            filtered.Sort();
+
             m_ReceiverDropdown.ClearOptions();
             m_ReceiverDropdown.AddOptions(filtered);
             m_ReceiverDropdown.interactable = true;

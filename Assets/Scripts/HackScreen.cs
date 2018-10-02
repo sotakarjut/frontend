@@ -17,6 +17,9 @@ public class HackScreen : UIScreen
     public Image m_HackProgressBar;
     public Toggle m_ShowPlayersToggle;
 
+    public GameObject m_LastMessagePanel;
+    public Text m_LastMessageText;
+
     private string m_HackTarget;
     private List<string> m_CachedTargets;
     private List<string> m_CachedTargetNames;
@@ -39,7 +42,34 @@ public class HackScreen : UIScreen
 
         m_ShowPlayersToggle.gameObject.SetActive( m_UserManager.CanCurrentUserImpersonate() );
 
+        bool isGM = m_UserManager.CanCurrentUserImpersonate();
+        m_LastMessagePanel.SetActive(isGM);
+        if ( isGM )
+        {
+            m_MessageManager.GetLatest(LatestReceived, NoConnection, true);
+        }
+
         RepopulateTargets();
+    }
+
+    private void LatestReceived(List<LatestInfo> latest)
+    {
+        if (latest != null)
+        {
+            string result = "";
+            for (int i = 0; i < latest.Count; ++i)
+            {
+                string realname = m_UserManager.GetUserRealName(latest[i].recipient._id);
+
+                result += (realname != null ? realname : "Tuntematon käyttäjä") + " " +
+                    MessageManager.GetTimeSince(MessageManager.ParseTimeStamp(latest[i].createdAt)) + "\n";
+            }
+            m_LastMessageText.text = result;
+        }
+        else
+        {
+            m_LastMessageText.text = "";
+        }
     }
 
     private void NoConnection()

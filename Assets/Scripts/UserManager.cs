@@ -51,6 +51,38 @@ public class UserManager : MonoBehaviour
         public UserProfile profile;
     }
 
+    public List<string> GetNPCRoles()
+    {
+        List<string> results = new List<string>();
+        if (m_CachedRoles != null)
+        {
+            foreach (Role r in m_CachedRoles.Values)
+            {
+                if ( !r.canBeHacked && !r.canImpersonate )
+                {
+                    results.Add(r.name);
+                }
+            }
+        }
+        return results;
+    }
+
+    public List<string> GetCharacterRoles()
+    {
+        List<string> results = new List<string>();
+        if (m_CachedRoles != null)
+        {
+            foreach (Role r in m_CachedRoles.Values)
+            {
+                if (r.canBeHacked && !r.canImpersonate)
+                {
+                    results.Add(r.name);
+                }
+            }
+        }
+        return results;
+    }
+
     public void NoConnection()
     {
         m_Manager.Logout();
@@ -93,7 +125,7 @@ public class UserManager : MonoBehaviour
         public string serverAddress;
     }
 
-    void Start ()
+    void Awake()
     {
         string configPath = Path.Combine(Application.streamingAssetsPath, "config.json");
         string name;
@@ -770,8 +802,7 @@ public class UserManager : MonoBehaviour
 
             if (success != null)
             {
-                // TODO: remove division
-                success(duration.hackingDuration/10);
+                success(duration.hackingDuration);
             }
         }
     }

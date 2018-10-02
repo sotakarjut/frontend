@@ -358,6 +358,10 @@ Prefab:
       propertyPath: m_UIManager
       value: 
       objectReference: {fileID: 1949260609}
+    - target: {fileID: 1285910761767452, guid: 6af783733a590ea4497bcbb0892fdb0b, type: 2}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6af783733a590ea4497bcbb0892fdb0b, type: 2}
   m_IsPrefabAsset: 0
@@ -507,7 +511,7 @@ Prefab:
       objectReference: {fileID: 1919802988}
     - target: {fileID: 1516601988168378, guid: b51ef4e255087b141b82951dee89ebe3, type: 2}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 114886096102243150, guid: b51ef4e255087b141b82951dee89ebe3,
         type: 2}
@@ -717,20 +721,6 @@ Prefab:
       propertyPath: m_InboxScreen
       value: 
       objectReference: {fileID: 1698116297}
-    - target: {fileID: 224443640819742928, guid: 75d099799ab5acc45a908bcf9e4b55d4,
-        type: 2}
-      propertyPath: m_AnchoredPosition.y
-      value: -463.94907
-      objectReference: {fileID: 0}
-    - target: {fileID: 224443640819742928, guid: 75d099799ab5acc45a908bcf9e4b55d4,
-        type: 2}
-      propertyPath: m_SizeDelta.y
-      value: 567.89813
-      objectReference: {fileID: 0}
-    - target: {fileID: 1779735089330386, guid: 75d099799ab5acc45a908bcf9e4b55d4, type: 2}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 75d099799ab5acc45a908bcf9e4b55d4, type: 2}
   m_IsPrefabAsset: 0

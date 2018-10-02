@@ -56,9 +56,19 @@ public class MessageManager : MonoBehaviour
 
     private float m_LastRefresh;
 
-    private IEnumerator GetLatestCoroutine(LatestReceivedCallback success, LatestFailedCallback failure)
+    private List<LatestInfo> m_LatestResults;
+    private int m_LatestResultCount;
+
+    private void Awake()
     {
-        UnityWebRequest request = UnityWebRequest.Get(Constants.serverAddress + "/api/messages/latest");
+        m_LatestResults = new List<LatestInfo>();
+    }
+
+    private IEnumerator GetLatestCoroutine(LatestReceivedCallback success, LatestFailedCallback failure, string rolename, int totalCount)
+    {
+        string url = "/api/messages/latest/" + rolename;
+
+        UnityWebRequest request = UnityWebRequest.Get(Constants.serverAddress + url);
         request.chunkedTransfer = false;
 
         yield return request.SendWebRequest();
@@ -89,16 +99,31 @@ public class MessageManager : MonoBehaviour
             {
                 Debug.LogError("Warning: cannot get latest messages.");
             }
-            if (latest != null && success != null)
+            if (latest != null)
             {
-                success(latest);
+                m_LatestResults.AddRange(latest);
+
+                m_LatestResultCount++;
+                if (m_LatestResultCount == totalCount)
+                {
+                    m_LatestResults.Sort((m1, m2) => { return MessageManager.ParseTimeStamp(m2.createdAt).CompareTo(MessageManager.ParseTimeStamp(m1.createdAt)); });
+
+                    if (success != null) success(m_LatestResults);
+                }
             }
         }
     }
 
-    public void GetLatest(LatestReceivedCallback success, LatestFailedCallback failure)
+    public void GetLatest(LatestReceivedCallback success, LatestFailedCallback failure, bool npcs = false)
     {
-        StartCoroutine(GetLatestCoroutine(success, failure));
+        List<string> rolenames = npcs ? m_UserManager.GetNPCRoles() : m_UserManager.GetCharacterRoles();
+        m_LatestResultCount = 0;
+        m_LatestResults.Clear();
+
+        for (int i = 0; i < rolenames.Count; ++i)
+        {
+            StartCoroutine(GetLatestCoroutine(success, failure, rolenames[i], rolenames.Count));
+        }
     }
 
     public static DateTime ParseTimeStamp(string createdAt)
