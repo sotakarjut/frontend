@@ -219,7 +219,7 @@ public class MessageManager : MonoBehaviour
         else if (request.responseCode == 200)
         {
             // response contains the message 
-            Debug.Log("Message sent: " + request.downloadHandler.text);
+            //Debug.Log("Message sent: " + request.downloadHandler.text);
             GetMessages(true, () => { success(); }, noconnection, () => { failure(); } );
         }
     }

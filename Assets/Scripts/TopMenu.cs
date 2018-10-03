@@ -50,7 +50,10 @@ public class TopMenu : UIMenu
         }
 
         bool canImpersonate = m_UserManager.CanCurrentUserImpersonate();
-        m_HackButton.SetActive(m_UserManager.CanCurrentUserHack() || canImpersonate );
+
+        // TODO: Disabled for now for players
+        //m_HackButton.SetActive(m_UserManager.CanCurrentUserHack() || canImpersonate );
+        m_HackButton.SetActive(canImpersonate);
 
         m_UserManager.GetUserImage(m_UserManager.CurrentUser, m_ProfileImage);
 

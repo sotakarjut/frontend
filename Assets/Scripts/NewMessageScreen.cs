@@ -53,9 +53,11 @@ public class NewMessageScreen : UIScreen
                     filtered.Add(users[i]);
                 }
             }
+            filtered.Sort();
 
             m_FirstListIndex = filtered.Count;
             List<string> lists = m_UserManager.GetMailingListNames();
+            lists.Sort();
             if (lists != null)
             {
                 for (int i = 0; i < lists.Count; ++i)
@@ -64,7 +66,7 @@ public class NewMessageScreen : UIScreen
                 }
             }
 
-            filtered.Sort();
+            //filtered.Sort();
 
             m_ReceiverDropdown.ClearOptions();
             m_ReceiverDropdown.AddOptions(filtered);
@@ -126,8 +128,24 @@ public class NewMessageScreen : UIScreen
 
     public void OnSend()
     {
-        string topic = m_TopicField.text;
-        string message = m_Message.text;
+        string topic;
+
+        if (m_TopicField.text == null || m_TopicField.text.Length == 0)
+        {
+            topic = "(Ei otsikkoa)";
+        } else
+        {
+            topic = m_TopicField.text;
+        }
+
+        string message;
+        if (m_Message.text == null || m_Message.text.Length == 0)
+        {
+            message = "(Ei sisältöä)";
+        } else
+        {
+            message = m_Message.text;
+        }
 
         MessageInfo m = new MessageInfo();
         m.replyTo = m_ReplyID;
