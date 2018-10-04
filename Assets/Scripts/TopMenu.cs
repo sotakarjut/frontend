@@ -25,7 +25,7 @@ public class TopMenu : UIMenu
         m_NameText.text = profile.name != null ? profile.name : "Tuntematon";
         m_TitleText.text = profile.title != null ? profile.title : "";
         m_GroupText.text = profile.group != null ? profile.group : "";
-        m_BalanceText.text = "Varat: " + profile.balance;
+        m_BalanceText.text = "Varat: " + (profile.balance != null ? profile.balance : "0");
 
         m_NewMessageButton.interactable = true;
         m_NewMessageButton2.interactable = true;
