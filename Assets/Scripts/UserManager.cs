@@ -102,12 +102,12 @@ public class UserManager : MonoBehaviour
     [System.Serializable]
     public struct UserProfile
     {
-        public long balance;
+        public string balance;
         public string group;
         public string name;
         public string picture;
         public string role;
-        public int security_level;
+        public string security_level;
         public string title;
     }
 
