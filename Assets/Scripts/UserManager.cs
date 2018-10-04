@@ -668,7 +668,7 @@ public class UserManager : MonoBehaviour
                 CurrentUser = logindata.user._id;
                 CurrentUserName = logindata.user.username;
                 CurrentUserClass = logindata.user.profile.role + " " + logindata.user.profile.group;
-                CurrentUserBalance = logindata.user.profile.balance.ToString();
+                CurrentUserBalance = logindata.user.profile.balance != null ? logindata.user.profile.balance : "0";
                 CurrentUserRole = logindata.user.profile.role;
                 m_UserToken = logindata.token;
 
