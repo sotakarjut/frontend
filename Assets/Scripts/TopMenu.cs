@@ -51,9 +51,10 @@ public class TopMenu : UIMenu
 
         bool canImpersonate = m_UserManager.CanCurrentUserImpersonate();
 
-        // TODO: Disabled for now for players
-        //m_HackButton.SetActive(m_UserManager.CanCurrentUserHack() || canImpersonate );
-        m_HackButton.SetActive(canImpersonate);
+        m_HackButton.SetActive(m_UserManager.CanCurrentUserHack() || canImpersonate );
+
+        // Comment the above and uncomment this to disable hacking for players but leave for admins
+        //m_HackButton.SetActive(canImpersonate);
 
         m_UserManager.GetUserImage(m_UserManager.CurrentUser, m_ProfileImage);
 
