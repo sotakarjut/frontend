@@ -82,8 +82,7 @@ public class HackScreen : UIScreen
     {
         if (m_HackTargetDropdown.options.Count > 0)
         {
-            int targetIndex = m_HackTargetDropdown.value;
-            m_HackTarget = m_CachedTargets[targetIndex];
+            m_HackTarget = m_UserManager.GetUserIdByName(m_HackTargetDropdown.options[m_HackTargetDropdown.value].text);
 
             //Debug.Log("starting hack for " + m_HackTarget);
             m_UserManager.Hack(m_HackTarget, Hacked, HackFailed, NoConnection);
@@ -148,6 +147,8 @@ public class HackScreen : UIScreen
                 }
             }
         }
+
+        m_CachedTargetNames.Sort();
 
         m_HackTargetDropdown.AddOptions(m_CachedTargetNames);
         m_HackTargetDropdown.interactable = true;
