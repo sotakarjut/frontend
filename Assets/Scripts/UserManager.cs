@@ -141,6 +141,9 @@ public class UserManager : MonoBehaviour
                 {
                     Debug.Log("Overriding server address with [" + data.serverAddress + "]");
                     Constants.serverAddress = data.serverAddress;
+                } else
+                {
+                    Debug.Log("Using hard-coded server address [" + Constants.serverAddress + "]");
                 }
             }
             else
