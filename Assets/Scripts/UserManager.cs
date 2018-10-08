@@ -388,7 +388,7 @@ public class UserManager : MonoBehaviour
                 roles = JsonConvert.DeserializeObject<Dictionary<string, Role>>(request.downloadHandler.text);
             } catch (Exception)
             {
-                Debug.LogError("Error: Can't deserialize role data");
+                Debug.LogError("Error: Can't deserialize role data: " + request.downloadHandler.text);
             }
 
             if (roles != null)

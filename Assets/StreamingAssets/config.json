@@ -1,4 +1,4 @@
 { 
 	"terminalName" : "testi",
-	"serverAddress" : "https://triton.sotakarjut.com/backend/"
+	"serverAddress" : "https://triton.sotakarjut.com/dev/backend/"
 }

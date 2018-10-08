@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Text.RegularExpressions;
+using TMPro;
 
 public class NewMessageScreen : UIScreen
 {
@@ -13,8 +14,9 @@ public class NewMessageScreen : UIScreen
 
     public InputField m_TopicField;
     public Dropdown m_ReceiverDropdown;
-    public InputField m_Message;
+    public TMP_InputField m_Message;
     public Button m_SendButton;
+    
 
     private string m_ReplyID;
     private int m_FirstListIndex;
