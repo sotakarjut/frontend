@@ -27,7 +27,7 @@ public class LoginScreen : UIScreen
     public InputField m_PIN;
 
     private IEnumerator m_LatestRefresher;
-    private bool m_UsersReceived;
+    private bool m_UsersReceived, m_ListsReceived;
 
     private void Start()
     {
@@ -68,7 +68,7 @@ public class LoginScreen : UIScreen
         m_LoginButton.interactable = false;
         m_LoginButtonText.color = new Color(.5f, .5f, .5f);
 
-        m_UserManager.GetUsers(UsersReceived, UsersFailed);
+        m_UserManager.GetUsers(UsersReceived, ListsReceived, UsersFailed);
 
         m_LatestRefresher = UpdateLatestCoroutine();
         StartCoroutine(m_LatestRefresher);
@@ -85,7 +85,7 @@ public class LoginScreen : UIScreen
 
     private IEnumerator UpdateLatestCoroutine()
     {
-        while (!m_UsersReceived)
+        while (!m_UsersReceived || !m_ListsReceived)
         {
             //Debug.Log("Waiting for users");
             yield return new WaitForSeconds(1f);
@@ -106,7 +106,7 @@ public class LoginScreen : UIScreen
             string result = "";
             for (int i = 0; i < latest.Count; ++i)
             {
-                string realname = m_UserManager.GetUserRealName(latest[i].recipient._id);
+                string realname = m_UserManager.GetUserRealName(latest[i]._id);
 
                 result += (realname != null ? realname : "Tuntematon käyttäjä") + " " + 
                     MessageManager.GetTimeSince(MessageManager.ParseTimeStamp(latest[i].createdAt)) + "\n";
@@ -132,7 +132,7 @@ public class LoginScreen : UIScreen
     {
         yield return new WaitForSeconds(20f);
 
-        m_UserManager.GetUsers(UsersReceived, UsersFailed);
+        m_UserManager.GetUsers(UsersReceived, ListsReceived, UsersFailed);
     }
 
     private void UsersReceived(List<string> users)
@@ -142,6 +142,11 @@ public class LoginScreen : UIScreen
         m_LoginButtonText.color = new Color(1f,1f,1f);
 
         m_UsersReceived = true;
+    }
+
+    private void ListsReceived()
+    {
+        m_ListsReceived = true;
     }
 
     public void LoginSuccessful()

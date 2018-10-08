@@ -28,13 +28,26 @@ public struct MessageInfo
 public struct LatestRecipient
 {
     public string _id;
-    public string username;
+}
+
+[System.Serializable]
+public struct LatestMessageInfo
+{
+    public LatestRecipient recipient;
+    public string createdAt;
+}
+
+[System.Serializable]
+public struct LatestMailingListInfo
+{
+    public LatestRecipient recipientList;
+    public string createdAt;
 }
 
 [System.Serializable]
 public struct LatestInfo
 {
-    public LatestRecipient recipient;
+    public string _id;
     public string createdAt;
 }
 
@@ -64,9 +77,9 @@ public class MessageManager : MonoBehaviour
         m_LatestResults = new List<LatestInfo>();
     }
 
-    private IEnumerator GetLatestCoroutine(LatestReceivedCallback success, LatestFailedCallback failure, string rolename, int totalCount)
+    private IEnumerator GetLatestCoroutine(LatestReceivedCallback success, LatestFailedCallback failure, string path, int totalCount, bool mailinglist)
     {
-        string url = "/api/messages/latest/" + rolename;
+        string url = "/api/messages/latest/" + path;
 
         UnityWebRequest request = UnityWebRequest.Get(Constants.serverAddress + url);
         request.chunkedTransfer = false;
@@ -93,8 +106,30 @@ public class MessageManager : MonoBehaviour
             List<LatestInfo> latest = null;
             try
             {
-                latest = JsonConvert.DeserializeObject<List<LatestInfo>>(request.downloadHandler.text);
-
+                latest = new List<LatestInfo>();
+                // Reprocess the info to a common format to make it unified for both cases
+                if (mailinglist)
+                {
+                    List<LatestMailingListInfo> tmp = JsonConvert.DeserializeObject<List<LatestMailingListInfo>>(request.downloadHandler.text);
+                    for (int i = 0; i < tmp.Count; ++i)
+                    {
+                        LatestInfo info = new LatestInfo();
+                        info._id = tmp[i].recipientList._id;
+                        info.createdAt = tmp[i].createdAt;
+                        latest.Add(info);
+                    }
+                }
+                else
+                {
+                    List<LatestMessageInfo> tmp = JsonConvert.DeserializeObject<List<LatestMessageInfo>>(request.downloadHandler.text);
+                    for (int i = 0; i < tmp.Count; ++i)
+                    {
+                        LatestInfo info = new LatestInfo();
+                        info._id = tmp[i].recipient._id;
+                        info.createdAt = tmp[i].createdAt;
+                        latest.Add(info);
+                    }
+                }
             } catch (Exception)
             {
                 Debug.LogError("Warning: cannot get latest messages.");
@@ -107,6 +142,7 @@ public class MessageManager : MonoBehaviour
                 if (m_LatestResultCount == totalCount)
                 {
                     m_LatestResults.Sort((m1, m2) => { return MessageManager.ParseTimeStamp(m2.createdAt).CompareTo(MessageManager.ParseTimeStamp(m1.createdAt)); });
+                    m_LatestResults = m_LatestResults.GetRange(0, Mathf.Min(m_LatestResults.Count, 10 ) );
 
                     if (success != null) success(m_LatestResults);
                 }
@@ -114,6 +150,7 @@ public class MessageManager : MonoBehaviour
         }
     }
 
+    // if we are looking for npcs, mailing lists are not included
     public void GetLatest(LatestReceivedCallback success, LatestFailedCallback failure, bool npcs = false)
     {
         List<string> rolenames = npcs ? m_UserManager.GetNPCRoles() : m_UserManager.GetCharacterRoles();
@@ -122,7 +159,12 @@ public class MessageManager : MonoBehaviour
 
         for (int i = 0; i < rolenames.Count; ++i)
         {
-            StartCoroutine(GetLatestCoroutine(success, failure, rolenames[i], rolenames.Count));
+            StartCoroutine(GetLatestCoroutine(success, failure, "role/" + rolenames[i], npcs ? rolenames.Count : rolenames.Count + 1, false));
+        }
+
+        if ( !npcs )
+        {
+            StartCoroutine(GetLatestCoroutine(success, failure, "mailinglist", rolenames.Count + 1, true));
         }
     }
 

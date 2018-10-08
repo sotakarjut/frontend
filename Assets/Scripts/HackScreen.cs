@@ -59,7 +59,7 @@ public class HackScreen : UIScreen
             string result = "";
             for (int i = 0; i < latest.Count; ++i)
             {
-                string realname = m_UserManager.GetUserRealName(latest[i].recipient._id);
+                string realname = m_UserManager.GetUserRealName(latest[i]._id);
 
                 result += (realname != null ? realname : "Tuntematon käyttäjä") + " " +
                     MessageManager.GetTimeSince(MessageManager.ParseTimeStamp(latest[i].createdAt)) + "\n";
@@ -164,7 +164,7 @@ public class HackScreen : UIScreen
             m_HackTargetDropdown.ClearOptions();
             m_CachedTargets.Clear();
             m_CachedTargetNames.Clear();
-            m_UserManager.GetUsers(RepopulateUsersReceived, null);
+            m_UserManager.GetUsers(RepopulateUsersReceived, null, null);
         }
     }
 

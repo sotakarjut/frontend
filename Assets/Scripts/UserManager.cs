@@ -474,7 +474,7 @@ public class UserManager : MonoBehaviour
         }
     }
 
-    public void GetUsers(UsersReceivedCallback callback, NoConnectionCallback failCallback)
+    public void GetUsers(UsersReceivedCallback callback, ListsReadyCallback listCallback, NoConnectionCallback failCallback)
     {
         if (m_CachedUsernames != null && callback != null)
         {
@@ -483,19 +483,24 @@ public class UserManager : MonoBehaviour
         else
         {
             StartCoroutine(GetRolesCoroutine());
-            StartCoroutine(GetMailingListsCoroutine( null, failCallback ));
+            StartCoroutine(GetMailingListsCoroutine( listCallback, failCallback ));
             StartCoroutine(GetUsersCoroutine( () => { callback(m_CachedUsernames); }, failCallback ));
         }
     }
 
     public string GetUserRealName(string id)
     {
+        if (id == null) return "Tuntematon käyttäjä";
+
         if (m_CachedUsers != null && m_CachedUsers.ContainsKey(id))
         {
             return m_CachedUsers[id].profile.name;
+        } else if ( m_CachedLists != null && m_CachedLists.ContainsKey(id) )
+        {
+            return m_CachedLists[id].name;
         } else
         {
-            return null;
+            return "Tuntematon käyttäjä";
         }
     }
 
