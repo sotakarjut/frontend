@@ -91,6 +91,7 @@ public class HackScreen : UIScreen
 
     private void Hacked(int duration)
     {
+        GlitchEffector.current.isGlitching = true;
         StartCoroutine(HackProgress(duration));
     }
 
@@ -119,6 +120,7 @@ public class HackScreen : UIScreen
         m_UserManager.SetHackedUser(m_HackTarget);
         m_Manager.ShowScreen(m_InboxScreen);
         m_TopMenu.Show();
+        GlitchEffector.current.isGlitching = false;
     }
 
     private void HackFailed()
