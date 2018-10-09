@@ -86,6 +86,8 @@ public class NewMessageScreen : UIScreen
             m_ReceiverDropdown.AddOptions(filtered);
             m_ReceiverDropdown.interactable = true;
             m_SendButton.interactable = true;
+
+            RecipientValueChanged(m_ReceiverDropdown.value);
         } else
         {
             NoConnection();
