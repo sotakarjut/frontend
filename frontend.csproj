@@ -312,7 +312,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\GlitchEffector.cs" />
     <Compile Include="Assets\Realistic Glitches Lite\Assets\Scripts\BWEffect.cs" />
     <Compile Include="Assets\Realistic Glitches Lite\Assets\Scripts\DiyEffect__FullOnly.cs" />
     <Compile Include="Assets\Realistic Glitches Lite\Assets\Scripts\ShaderEffect_BleedingColors.cs" />
@@ -323,6 +322,7 @@
     <Compile Include="Assets\Realistic Glitches Lite\Assets\Scripts\ShaderEffect_Unsync.cs" />
     <Compile Include="Assets\Realistic Glitches Lite\Assets\Scripts\ShaderToTexture.cs" />
     <Compile Include="Assets\Scripts\Constants.cs" />
+    <Compile Include="Assets\Scripts\GlitchEffector.cs" />
     <Compile Include="Assets\Scripts\HackScreen.cs" />
     <Compile Include="Assets\Scripts\InboxScreen.cs" />
     <Compile Include="Assets\Scripts\LoginScreen.cs" />
