@@ -33,7 +33,7 @@ public class GlitchEffector : MonoBehaviour {
                 effectsEnabled = true;
                 unsyncEffect.enabled = true;
                 bleedingColorEffect.enabled = true;
-                //vramEffect.enabled = true;
+                vramEffect.enabled = false;
                 tintEffect.enabled = true;
                 bwEffect.enabled = true;
             }

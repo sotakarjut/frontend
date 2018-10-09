@@ -30,6 +30,11 @@ public class HackScreen : UIScreen
         m_CachedTargetNames = new List<string>();
     }
 
+    public void DisableGlitch()
+    {
+        GlitchEffector.current.isGlitching = false;
+    }
+
     public override void Show()
     {
         base.Show();
