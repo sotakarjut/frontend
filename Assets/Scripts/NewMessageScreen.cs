@@ -16,7 +16,7 @@ public class NewMessageScreen : UIScreen
     public Dropdown m_ReceiverDropdown;
     public TMP_InputField m_Message;
     public Button m_SendButton;
-    
+    public Image m_RecipientImage;    
 
     private string m_ReplyID;
     private int m_FirstListIndex;
@@ -34,6 +34,18 @@ public class NewMessageScreen : UIScreen
         m_SendButton.interactable = false;
 
         m_UserManager.GetUsers(UsersReceived, null, NoConnection);
+    }
+
+    public void RecipientValueChanged(int value)
+    {
+        if (m_ReceiverDropdown.value < m_FirstListIndex)
+        {
+            m_UserManager.GetUserImage( m_UserManager.GetUserIdByName(m_ReceiverDropdown.options[m_ReceiverDropdown.value].text), m_RecipientImage );
+        }
+        else
+        {
+            m_UserManager.GetUserImage( null,  m_RecipientImage );
+        }
     }
 
     private void NoConnection()
@@ -74,6 +86,8 @@ public class NewMessageScreen : UIScreen
             m_ReceiverDropdown.AddOptions(filtered);
             m_ReceiverDropdown.interactable = true;
             m_SendButton.interactable = true;
+
+            RecipientValueChanged(m_ReceiverDropdown.value);
         } else
         {
             NoConnection();

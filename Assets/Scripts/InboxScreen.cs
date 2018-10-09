@@ -203,8 +203,10 @@ public class InboxScreen : UIScreen
                 m_MessageSeparators[i - 1].gameObject.SetActive(true);
             }
 
+            string recipient = threadMessages[i].recipient != null ? threadMessages[i].recipient : threadMessages[i].recipientList;
+
             m_MessageInstances[i].SetData(threadMessages[i], threadMessages[i].title, m_UserManager.GetUserRealName(threadMessages[i].sender._id),
-                m_UserManager.GetUserRealName(threadMessages[i].recipient), threadMessages[i].body);
+                m_UserManager.GetUserRealName(recipient), threadMessages[i].body);
             m_MessageInstances[i].gameObject.SetActive(true);
         }
 
@@ -260,17 +262,22 @@ public class InboxScreen : UIScreen
         return result;
     }
 
+    // Inbox: Everything is visible except threads where all messages are sent by myself
+    // Sent: Threads where I am the senders in at least one message are visible
     private bool CheckThreadVisibility(string root, MessageManager.ThreadStructure threads, InboxMode mode)
     {
         int loops = 0;
+        string usernameToShow = m_UserManager.GetUserName(m_MessageManager.GetUserToShow());
         do
         {
             MessageInfo m = m_MessageManager.GetMessage(root);
-            if ( mode == InboxMode.Sent && m.sender.username != null && m.sender.username.Equals( m_UserManager.GetUserName(m_MessageManager.GetUserToShow()) ) )
+            if ( mode == InboxMode.Sent && m.sender.username != null && m.sender.username.Equals( usernameToShow ) )
             {
                 return true;
             }
-            if ( mode == InboxMode.Received && m.recipient != null && m.recipient.Equals(m_MessageManager.GetUserToShow()) )
+
+            //if ( mode == InboxMode.Received && m.recipient != null && m.recipient.Equals(m_MessageManager.GetUserToShow()) )
+            if ( mode == InboxMode.Received && m.sender.username != null && !m.sender.username.Equals( usernameToShow ))
             {
                 return true;
             }
@@ -333,9 +340,15 @@ public class InboxScreen : UIScreen
         if ( m.sender.username != null && !m.sender.username.Equals(m_UserManager.GetUserName(m_MessageManager.GetUserToShow())))
         {
             return m.sender._id;
-        } else
+        } else if ( m.recipient != null )
         {
             return m.recipient;
+        } else if ( m.recipientList != null )
+        {
+            return m.recipientList;
+        } else
+        {
+            return "(Tuntematon käyttäjä)";
         }
     }
 
