@@ -170,7 +170,7 @@ public class UserManager : MonoBehaviour
 
     private IEnumerator GetUserImageCoroutine(string user, Image target)
     {
-        if (target != null && m_CachedUsers != null && m_CachedUsers.ContainsKey(user))
+        if (user != null && target != null && m_CachedUsers != null && m_CachedUsers.ContainsKey(user))
         {
             string url = null;
             try
@@ -190,7 +190,8 @@ public class UserManager : MonoBehaviour
                     try
                     {
                         target.overrideSprite = Sprite.Create(www.texture, new Rect(0, 0, www.texture.width, www.texture.height), new Vector2(0, 0));
-                    } catch (Exception)
+                    }
+                    catch (Exception)
                     {
                         target.overrideSprite = NoProfileImage;
                     }

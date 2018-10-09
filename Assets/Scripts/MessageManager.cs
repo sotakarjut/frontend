@@ -18,6 +18,7 @@ public struct MessageInfo
     public string _id;
     public string body;
     public string recipient; // id
+    public string recipientList; // list id
     public Sender sender;
     public string title;
     public string createdAt;
