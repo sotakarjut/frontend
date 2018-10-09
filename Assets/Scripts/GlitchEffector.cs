@@ -7,8 +7,6 @@ public class GlitchEffector : MonoBehaviour {
 
     public static GlitchEffector current;
 
-    public float EffectIntensity = 1f;
-
     public ShaderEffect_Unsync unsyncEffect;
     public ShaderEffect_Tint tintEffect;
     public BWEffect bwEffect;
@@ -18,10 +16,20 @@ public class GlitchEffector : MonoBehaviour {
     bool effectsEnabled = false;
     float glitchTime = 0f;
     float glitchPower = 1f;
+    float glitchedFor = 0f;
 
     private void Awake()
     {
         current = this;
+    }
+
+    void enableEffect(int effectNumber, bool enabled)
+    {
+        if (effectNumber == 0) unsyncEffect.enabled = enabled;
+        if (effectNumber == 1) bleedingColorEffect.enabled = enabled;
+        if (effectNumber == 2) vramEffect.enabled = enabled;
+        if (effectNumber == 3) tintEffect.enabled = enabled;
+        if (effectNumber == 4) bwEffect.enabled = enabled;
     }
 
     // Update is called once per frame
@@ -31,18 +39,15 @@ public class GlitchEffector : MonoBehaviour {
             if (!effectsEnabled)
             {
                 effectsEnabled = true;
-                unsyncEffect.enabled = true;
-                bleedingColorEffect.enabled = true;
-                vramEffect.enabled = false;
-                tintEffect.enabled = true;
-                bwEffect.enabled = true;
             }
             glitchTime += Time.deltaTime;
+            glitchedFor += Time.deltaTime;
             if (glitchTime > 100f) glitchTime = 0f;
             if (Random.Range(0f,100f) > 95f)
             {
                 glitchTime += Random.Range(5f, 30f);
-                glitchPower = EffectIntensity * Random.Range(0.8f, 3f);
+                glitchPower = Random.Range(0.8f, 3f) * glitchedFor * 0.01f;
+                enableEffect(Random.Range(0, 4), Random.Range(0f, glitchedFor) > 3f);
             }
             unsyncEffect.speed = Mathf.Sin(glitchTime) * glitchPower;
             vramEffect.shift = Mathf.Cos(glitchTime * 3.1f) * (4f + Mathf.Tan(glitchTime) + glitchPower);
@@ -56,6 +61,7 @@ public class GlitchEffector : MonoBehaviour {
                 vramEffect.enabled = false;
                 tintEffect.enabled = false;
                 bwEffect.enabled = false;
+                glitchedFor = 0f;
             }
         }
 	}
