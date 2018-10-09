@@ -7,6 +7,8 @@ public class GlitchEffector : MonoBehaviour {
 
     public static GlitchEffector current;
 
+    public float EffectIntensity = 1f;
+
     public ShaderEffect_Unsync unsyncEffect;
     public ShaderEffect_Tint tintEffect;
     public BWEffect bwEffect;
@@ -31,7 +33,7 @@ public class GlitchEffector : MonoBehaviour {
                 effectsEnabled = true;
                 unsyncEffect.enabled = true;
                 bleedingColorEffect.enabled = true;
-                vramEffect.enabled = true;
+                //vramEffect.enabled = true;
                 tintEffect.enabled = true;
                 bwEffect.enabled = true;
             }
@@ -40,7 +42,7 @@ public class GlitchEffector : MonoBehaviour {
             if (Random.Range(0f,100f) > 95f)
             {
                 glitchTime += Random.Range(5f, 30f);
-                glitchPower = Random.Range(0.8f, 3f);
+                glitchPower = EffectIntensity * Random.Range(0.8f, 3f);
             }
             unsyncEffect.speed = Mathf.Sin(glitchTime) * glitchPower;
             vramEffect.shift = Mathf.Cos(glitchTime * 3.1f) * (4f + Mathf.Tan(glitchTime) + glitchPower);

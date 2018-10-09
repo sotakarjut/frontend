@@ -61,6 +61,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\GlitchEffector.cs" />
+    <Compile Include="Assets\Realistic Glitches Lite\Assets\Scripts\BWEffect.cs" />
+    <Compile Include="Assets\Realistic Glitches Lite\Assets\Scripts\DiyEffect__FullOnly.cs" />
+    <Compile Include="Assets\Realistic Glitches Lite\Assets\Scripts\ShaderEffect_BleedingColors.cs" />
+    <Compile Include="Assets\Realistic Glitches Lite\Assets\Scripts\ShaderEffect_CorruptedVram.cs" />
+    <Compile Include="Assets\Realistic Glitches Lite\Assets\Scripts\ShaderEffect_CRT.cs" />
+    <Compile Include="Assets\Realistic Glitches Lite\Assets\Scripts\ShaderEffect_Scanner.cs" />
+    <Compile Include="Assets\Realistic Glitches Lite\Assets\Scripts\ShaderEffect_Tint.cs" />
+    <Compile Include="Assets\Realistic Glitches Lite\Assets\Scripts\ShaderEffect_Unsync.cs" />
+    <Compile Include="Assets\Realistic Glitches Lite\Assets\Scripts\ShaderToTexture.cs" />
     <Compile Include="Assets\Scripts\Constants.cs" />
     <Compile Include="Assets\Scripts\HackScreen.cs" />
     <Compile Include="Assets\Scripts\InboxScreen.cs" />
@@ -78,25 +88,34 @@
     <Compile Include="Assets\Scripts\UIMenu.cs" />
     <Compile Include="Assets\Scripts\UIScreen.cs" />
     <Compile Include="Assets\Scripts\UserManager.cs" />
+    <None Include="Assets\Realistic Glitches Lite\Assets\Shaders\Distortion2D__FullOnly.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface-Mobile.shader" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
+    <None Include="Assets\Realistic Glitches Lite\Assets\Shaders\Scanlines.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro_Properties.cginc" />
+    <None Include="Assets\Realistic Glitches Lite\Documentation\Realistic Glitches.txt" />
+    <None Include="Assets\Realistic Glitches Lite\Assets\Shaders\BleedingColors.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Bitmap-Custom-Atlas.shader" />
+    <None Include="Assets\Realistic Glitches Lite\Assets\Shaders\Shift.shader" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
     <None Include="Assets\TextMesh Pro\Sprites\EmojiOne Attribution.txt" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Masking.shader" />
     <None Include="Assets\JsonDotNet\link.xml" />
+    <None Include="Assets\Realistic Glitches Lite\Assets\Shaders\VUnsync.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Bitmap-Mobile.shader" />
     <None Include="Assets\Art\sf_new_republic\Readme.txt" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF Overlay.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro_Surface.cginc" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Overlay.shader" />
+    <None Include="Assets\Realistic Glitches Lite\Assets\Shaders\Tint.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Bitmap.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro.cginc" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile.shader" />
+    <None Include="Assets\Realistic Glitches Lite\Assets\Shaders\Distortion.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Sprite.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface.shader" />
+    <None Include="Assets\Realistic Glitches Lite\Assets\Shaders\BWDiffuse.shader" />
     <Reference Include="UnityEditor.StandardEvents">
       <HintPath>E:/omat/timo/Sotakarjut/Sotakarjut-frontend/Sotakarjut frontend/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
     </Reference>
