@@ -858,7 +858,7 @@ public class UserManager : MonoBehaviour
 
             if (success != null)
             {
-                success(duration.hackingDuration/10);
+                success(duration.hackingDuration);
             }
         }
     }
