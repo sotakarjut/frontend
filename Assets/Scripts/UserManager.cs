@@ -51,6 +51,53 @@ public class UserManager : MonoBehaviour
         public UserProfile profile;
     }
 
+    public void EndHacking()
+    {
+        if (m_HackedUser != null && !CanCurrentUserImpersonate() )
+        {
+            StartCoroutine(EndHackingCoroutine());
+        }
+    }
+
+    public IEnumerator EndHackingCoroutine()
+    {
+        WWWForm form = new WWWForm();
+        form.AddField("terminalId", m_TerminalName);
+        
+        UnityWebRequest request = UnityWebRequest.Post(Constants.serverAddress + "api/hack/finalize", form);
+        SetCurrentUserAuthorization(request);
+        request.chunkedTransfer = false;
+
+        yield return request.SendWebRequest();
+
+        while (!request.isDone)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+
+        if (request.isNetworkError)
+        {
+            Debug.Log("Network error: Cannot send hack ended: " + request.error + ", Code = " + request.responseCode);
+        }
+        else if (request.isHttpError)
+        {
+            Debug.Log("Http error: Cannot send hack ended: " + request.error + ", Code = " + request.responseCode);
+        }
+        else
+        {
+            try
+            {
+                Debug.Log(request.downloadHandler.text);
+                Debug.Log("Hack ended");
+
+            }
+            catch (Exception)
+            {
+                Debug.LogWarning("Warning: Sending hack ended failed.");
+            }
+        }
+    }
+
     public List<string> GetNPCRoles()
     {
         List<string> results = new List<string>();
@@ -811,13 +858,16 @@ public class UserManager : MonoBehaviour
 
             if (success != null)
             {
-                success(duration.hackingDuration);
+                success(duration.hackingDuration/10);
             }
         }
     }
 
     public void Hack(string target, HackSuccessfulCallback success, HackFailedCallback fail, NoConnectionCallback noconnection)
     {
+        // Uncomment this if a finalize hack call should be sent after hacking each user and not just the session. 
+        //EndHacking();
+
         StartCoroutine(TryHackCoroutine(target, success, fail, noconnection));
     }
 
