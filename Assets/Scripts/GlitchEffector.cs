@@ -41,7 +41,7 @@ public class GlitchEffector : MonoBehaviour {
                 effectsEnabled = true;
             }
             glitchTime += Time.deltaTime;
-            glitchedFor += Time.deltaTime;
+            glitchedFor += 0.1f * Time.deltaTime;
             if (glitchTime > 100f) glitchTime = 0f;
             if (Random.Range(0f,100f) > 95f)
             {
