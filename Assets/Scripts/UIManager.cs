@@ -76,6 +76,8 @@ public class UIManager : MonoBehaviour
 
     public void Logout()
     {
+        m_UserManager.EndHacking();
+
         ShowMenu(null);
         ShowScreen(m_InitialScreen);
 
