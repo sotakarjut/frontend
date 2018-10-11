@@ -63,7 +63,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!1 &1344973562576808
 GameObject:
   m_ObjectHideFlags: 1
@@ -292,7 +292,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 0
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 20
   m_Viewport: {fileID: 224503187269447226}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 114752955182795804}
@@ -499,6 +499,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_NewsManager: {fileID: 0}
   m_UIManager: {fileID: 0}
+  m_UserManager: {fileID: 0}
+  m_EditScreen: {fileID: 0}
   m_NewsPanel: {fileID: 114339346511105344}
   m_NewsContentParent: {fileID: 224364368704393384}
   m_NewsTemplate: {fileID: 114781740664362472}
@@ -814,6 +816,7 @@ MonoBehaviour:
   m_TopicText: {fileID: 114200499806326346}
   m_TimeStampText: {fileID: 114848051089610218}
   m_MessageText: {fileID: 114442549319570692}
+  m_Editbutton: {fileID: 114379522522121294}
 --- !u!114 &114807658800703748
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1069,7 +1072,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0.000028079958, y: -0.00001970581}
-  m_SizeDelta: {x: 0, y: 346.6944}
+  m_SizeDelta: {x: 0, y: 354.2919}
   m_Pivot: {x: 0, y: 1}
 --- !u!224 &224365622706454574
 RectTransform:
@@ -1183,8 +1186,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 15, y: -173.3472}
-  m_SizeDelta: {x: 0, y: 336.6944}
+  m_AnchoredPosition: {x: 15, y: -177.14595}
+  m_SizeDelta: {x: 0, y: 344.2919}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224503187269447226
 RectTransform:
@@ -1221,7 +1224,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -8.299927, y: -15.69}
+  m_AnchoredPosition: {x: -8.299927, y: -15.690002}
   m_SizeDelta: {x: 18.7, y: -32.689995}
   m_Pivot: {x: 1, y: 1}
 --- !u!224 &224616585887691086
@@ -1278,7 +1281,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 526, y: -193}
-  m_SizeDelta: {x: 1002, y: 133.69438}
+  m_SizeDelta: {x: 1002, y: 141.2919}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!224 &224990679678510284
 RectTransform:
