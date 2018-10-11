@@ -4,7 +4,7 @@ Frontend project for the Sotakarjut larp communication application.
 
 ## Configuring
 
-* In a windows build the configuration file can found at "Sotakarjut frontend_Data/StreamingAssets/config.json".
+* In a windows build the configuration file can found at "TritonMail_Data/StreamingAssets/config.json".
 * It should have a single object with up to two fields
 * terminalName is the name sent when hacking
 * serverAddress is the address to the backend root, e.g. "http://localhost:3000/"
