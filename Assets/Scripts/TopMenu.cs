@@ -16,6 +16,10 @@ public class TopMenu : UIMenu
     public Button m_NewMessageButton2;
     public Image m_NewMessageButtonImage;
     public Text m_NewMessageText;
+    public Button m_EditNewsButton;
+    public Button m_EditNewsButton2;
+    public Image m_EditNewsButtonImage;
+    public Text m_EditNewsText;
 
     public Button m_ReplyButton;
     public Text m_ReplyButtonText;
@@ -55,6 +59,8 @@ public class TopMenu : UIMenu
 
         // Comment the above and uncomment this to disable hacking for players but leave for admins
         //m_HackButton.SetActive(canImpersonate);
+
+        m_EditNewsButton.gameObject.SetActive(m_UserManager.CanCurrentUserImpersonate() || m_UserManager.CanCurrentUserPostNews());
 
         m_UserManager.GetUserImage(m_UserManager.CurrentUser, m_ProfileImage);
 

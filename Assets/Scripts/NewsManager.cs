@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
 using System;
+using System.Text;
 
 [System.Serializable]
 public struct Profile
@@ -25,11 +26,15 @@ public struct News
     public string body;
     public string title;
     public string createdAt;
+    public string _id;
 }
 
 public class NewsManager : MonoBehaviour
 {
+    public UserManager m_UserManager;
+
     public delegate void NewsReceivedCallback(List<News> news);
+    public delegate void NewsSentCallback();
     public delegate void NoConnectionCallback();
     public delegate void NewsReceivingError();
 
@@ -38,6 +43,119 @@ public class NewsManager : MonoBehaviour
 
     void Start ()
     {
+    }
+
+    public News GetNewsItem(string id)
+    {
+        if (m_CachedNews == null || id == null) return default(News);
+
+        for (int i = 0; i < m_CachedNews.Count; ++i)
+        {
+            string tmp = m_CachedNews[i]._id;
+            if ( tmp != null && tmp.Equals(id) )
+            {
+                return m_CachedNews[i];
+            }
+        }
+
+        return default(News);
+    }
+
+    public IEnumerator SendNewsCoroutine(string topic, string message, NewsSentCallback success, NoConnectionCallback noconnection)
+    {
+        WWWForm form = new WWWForm();
+        form.AddField("title", topic);
+        form.AddField("newsBody", message);
+
+        UnityWebRequest request = UnityWebRequest.Post(Constants.serverAddress + "api/news", form);
+        m_UserManager.SetCurrentUserAuthorization(request);
+
+        yield return request.SendWebRequest();
+
+        while (!request.isDone)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+
+        if (request.isNetworkError)
+        {
+            Debug.Log("Network error: Cannot send news: " + request.error + ", Code = " + request.responseCode);
+            if (noconnection != null) noconnection();
+        }
+        else if (request.isHttpError)
+        {
+            if (request.responseCode == 400)
+            {
+                Debug.Log("Http error: News data missing: " + request.error + ", Code = " + request.responseCode + " " + request.downloadHandler.text);
+            }
+            else if (request.responseCode == 500)
+            {
+                Debug.Log("Http error: Database search failed: " + request.error + ", Code = " + request.responseCode);
+            }
+        }
+        else if (request.responseCode == 200)
+        {
+            if (success != null) success();
+        }
+    }
+
+    public struct UpdatedNews
+    {
+        public string title;
+        public string newsBody;
+    }
+
+    public IEnumerator EditNewsCoroutine(string topic, string message, string editId, NewsSentCallback success, NoConnectionCallback noconnection)
+    {
+        UpdatedNews un = new UpdatedNews
+        {
+            title = topic,
+            newsBody = message
+        };
+        string json = JsonConvert.SerializeObject(un);
+        UnityWebRequest request = UnityWebRequest.Put(Constants.serverAddress + "api/news/" + editId, Encoding.UTF8.GetBytes(json));
+
+        request.SetRequestHeader("Content-Type", "application/json");
+        m_UserManager.SetCurrentUserAuthorization(request);
+
+        yield return request.SendWebRequest();
+
+        while (!request.isDone)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+
+        if (request.isNetworkError)
+        {
+            Debug.Log("Network error: Cannot edit news: " + request.error + ", Code = " + request.responseCode);
+            if (noconnection != null) noconnection();
+        }
+        else if (request.isHttpError)
+        {
+            if (request.responseCode == 400)
+            {
+                Debug.Log("Http error: News data missing: " + request.error + ", Code = " + request.responseCode + " " + request.downloadHandler.text);
+            }
+            else if (request.responseCode == 500)
+            {
+                Debug.Log("Http error: Database search failed: " + request.error + ", Code = " + request.responseCode);
+            }
+        }
+        else if (request.responseCode == 200)
+        {
+            if (success != null) success();
+        }
+    }
+
+    public void SendNews(string topic, string message, string updateId, NewsSentCallback success, NoConnectionCallback noconnection)
+    {
+        if ( updateId == null )
+        {
+            StartCoroutine(SendNewsCoroutine(topic, message, success, noconnection));
+        } else
+        {
+            StartCoroutine(EditNewsCoroutine(topic, message, updateId, success, noconnection));
+        }
     }
 
     public IEnumerator GetNewsCoroutine(NewsReceivedCallback success, NoConnectionCallback noconnection, NewsReceivingError failure)

@@ -98,6 +98,11 @@ public class UserManager : MonoBehaviour
         }
     }
 
+    public bool CanCurrentUserPostNews()
+    {
+        return CurrentUserName.Equals("heislenger") || CurrentUserName.Equals("alegre") || !CanBeHacked(CurrentUser);
+    }
+
     public List<string> GetNPCRoles()
     {
         List<string> results = new List<string>();

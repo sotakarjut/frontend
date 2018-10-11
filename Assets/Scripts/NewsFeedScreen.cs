@@ -6,6 +6,8 @@ public class NewsFeedScreen : UIScreen
 {
     public NewsManager m_NewsManager;
     public UIManager m_UIManager;
+    public UserManager m_UserManager;
+    public EditNewsScreen m_EditScreen;
 
     public Image m_NewsPanel;
     public Transform m_NewsContentParent;
@@ -37,6 +39,11 @@ public class NewsFeedScreen : UIScreen
         base.Show();
         m_NewsPanel.gameObject.SetActive(false);
         m_NewsManager.GetNews(false, (news) => { NewsReceived(news); }, NoConnection, NewsFailed);
+    }
+
+    public void ForceRefresh()
+    {
+        m_NewsManager.GetNews(true, (news) => { NewsReceived(news); }, NoConnection, NewsFailed);
     }
 
     private void NoConnection()
@@ -75,7 +82,10 @@ public class NewsFeedScreen : UIScreen
                     m_NewsSeparators[i - 1].gameObject.SetActive(true);
                 }
 
-                m_NewsInstances[i].SetData(news[i]);
+                bool editable = m_UserManager.CanCurrentUserImpersonate() ||
+                    news[i].author._id != null && news[i].author._id.Equals(m_UserManager.CurrentUser);
+
+                m_NewsInstances[i].SetData(news[i], editable, m_EditScreen);
                 m_NewsInstances[i].gameObject.SetActive(true);
             }
 
